@@ -2,4 +2,7 @@
 <resources>
 	<string name="app_name">Convodroid</string>
 	<string name="logout_button">Logout</string>
+	
+	<string name="loading">Loading…</string>
+	
 </resources>

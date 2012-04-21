@@ -24,6 +24,8 @@ package com.pocketsoap.convodroid;
 import java.io.IOException;
 
 import org.apache.http.ParseException;
+import org.codehaus.jackson.map.DeserializationConfig.Feature;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.pocketsoap.convodroid.data.ConversationSummaryPage;
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.ClientManager;
 import com.salesforce.androidsdk.rest.RestClient;
@@ -86,7 +89,10 @@ public class ConversationListFragment extends SherlockFragment implements RestCl
 			@Override
 			public void onSuccess(RestResponse response) {
 				try {
-					Log.i("http", response.asString());
+					ObjectMapper mapper = new org.codehaus.jackson.map.ObjectMapper();
+					mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+					ConversationSummaryPage pg = mapper.readValue(response.getHttpResponse().getEntity().getContent(), ConversationSummaryPage.class);
+					Log.i("http", pg.toString());
 				} catch (ParseException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

@@ -21,35 +21,32 @@
 
 package com.pocketsoap.convodroid;
 
-import java.io.IOException;
 
-import org.apache.http.ParseException;
-import org.codehaus.jackson.map.DeserializationConfig.Feature;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.pocketsoap.convodroid.data.ConversationSummaryPage;
+import com.pocketsoap.convodroid.loaders.JsonLoader;
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.ClientManager;
-import com.salesforce.androidsdk.rest.RestClient;
 import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
 import com.salesforce.androidsdk.rest.ClientManager.RestClientCallback;
-import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
+import com.salesforce.androidsdk.rest.RestClient;
 import com.salesforce.androidsdk.rest.RestRequest;
 import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
-import com.salesforce.androidsdk.rest.RestResponse;
 
 
 /**
  * @author superfell
  */
-public class ConversationListFragment extends SherlockFragment implements RestClientCallback {
+public class ConversationListFragment extends SherlockListFragment implements RestClientCallback {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,33 +75,27 @@ public class ConversationListFragment extends SherlockFragment implements RestCl
 	}
 
 	@Override
-	public void authenticatedRestClient(RestClient client) {
+	public void authenticatedRestClient(final RestClient client) {
 		if (client == null) {
 			ForceApp.APP.logout(getActivity());
 			return;
 		}
-		RestRequest rr = new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null);
-		client.sendAsync(rr, new AsyncRequestCallback() {
+		this.getLoaderManager().initLoader(0, null, new LoaderCallbacks<ConversationSummaryPage>() {
 
 			@Override
-			public void onSuccess(RestResponse response) {
-				try {
-					ObjectMapper mapper = new org.codehaus.jackson.map.ObjectMapper();
-					mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-					ConversationSummaryPage pg = mapper.readValue(response.getHttpResponse().getEntity().getContent(), ConversationSummaryPage.class);
-					Log.i("http", pg.toString());
-				} catch (ParseException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			public Loader<ConversationSummaryPage> onCreateLoader(int arg0, Bundle arg1) {
+				RestRequest req = new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null);
+				return new JsonLoader<ConversationSummaryPage>(getActivity(), client, req, new TypeReference<ConversationSummaryPage>() {} );
 			}
 
 			@Override
-			public void onError(Exception exception) {
+			public void onLoadFinished(Loader<ConversationSummaryPage> arg0, ConversationSummaryPage page) {
+				setListAdapter(new SummaryAdapter(getActivity(), page.conversations));
+			}
+
+			@Override
+			public void onLoaderReset(Loader<ConversationSummaryPage> arg0) {
 			}
 		});
 	}
-
-	
 }

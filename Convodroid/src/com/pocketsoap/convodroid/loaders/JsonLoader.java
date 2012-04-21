@@ -42,14 +42,16 @@ import com.salesforce.androidsdk.rest.RestResponse;
  */
 public class JsonLoader<ReturnType> extends AsyncLoader<ReturnType> {
 
-	public JsonLoader(Context context, RestClient restClient, RestRequest req) {
+	public JsonLoader(Context context, RestClient restClient, RestRequest req, TypeReference<ReturnType> typeRef) {
 		super(context);
 		this.client = restClient;
 		this.request = req;
+		this.typeReference = typeRef;
 	}
 
 	private final RestClient client;
 	private final RestRequest request;
+	private final TypeReference<ReturnType> typeReference;
 	
 	@Override
 	public ReturnType loadInBackground() {
@@ -57,7 +59,7 @@ public class JsonLoader<ReturnType> extends AsyncLoader<ReturnType> {
 			RestResponse res = client.sendSync(request);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			return mapper.readValue(res.getHttpResponse().getEntity().getContent(), new TypeReference<ReturnType>() {} );
+			return mapper.readValue(res.getHttpResponse().getEntity().getContent(), typeReference );
 			
 		} catch (JsonParseException e) {
 			e.printStackTrace();

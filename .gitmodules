@@ -1,0 +1,3 @@
+[submodule "MobileSdk"]
+	path = MobileSdk
+	url = git@github.com:superfell/SalesforceMobileSDK-Android.git

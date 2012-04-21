@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="account_type">com.pocketsoap.convodroid</string>
+	<string name="oauth_callback_url">testsfdc:///mobilesdk/detect/oauth/done</string>
+	<string name="oauth_client_id">3MVG99OxTyEMCQ3hP1_9.Mh8dF8DX.9SDQ63keUHUFCUjIcf9cZ8xI9mC9wUBM3gduabeWGthseyTfNW0lIsI</string>
+	<string name="api_version">v24.0</string>
+	<string name="encoding">UTF-8</string>
+</resources>

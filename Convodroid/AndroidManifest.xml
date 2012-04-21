@@ -4,20 +4,48 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="8" />
+    <uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+	<uses-permission android:name="android.permission.USE_CREDENTIALS" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
 
     <application
+        android:name=".ConvodroidApp"
+        android:theme="@style/Theme.Sherlock.Light.DarkActionBar"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
+
+        <!-- Service required for authentication -->
+		<service android:exported="true" android:process=":auth"
+			android:name="com.salesforce.androidsdk.auth.AuthenticatorService">
+
+			<intent-filter>
+				<action android:name="android.accounts.AccountAuthenticator" />
+			</intent-filter>
+
+			<meta-data android:name="android.accounts.AccountAuthenticator"
+				android:resource="@xml/authenticator" />
+
+		</service>
+		
+		<!-- Login activity -->
+		<activity android:name="com.salesforce.androidsdk.ui.LoginActivity" />
+		
+		<!-- Choose server activity -->
+		<activity android:name="com.salesforce.androidsdk.ui.ServerPickerActivity" android:excludeFromRecents="true" />
+		
         <activity
             android:name=".ConversationListActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
     </application>
-
 </manifest>

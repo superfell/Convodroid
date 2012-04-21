@@ -26,12 +26,8 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.format.DateUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 
 import com.pocketsoap.convodroid.data.ConversationSummary;
 
@@ -50,7 +46,7 @@ class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 			this.photo = (ImageView) v.findViewById(R.id.photo);
 			this.timestamp = (TextView) v.findViewById(R.id.timestamp);
 			this.from = (TextView) v.findViewById(R.id.from);
-			this.text = (TextView) v.findViewById(R.id.text);
+			this.text = (TextView) v.findViewById(R.id.msg_body);
 		}
 		
 		private ImageView photo;
@@ -71,7 +67,7 @@ class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 		view.setBackgroundColor(item.read ? Color.WHITE : Color.argb(128, 225, 225, 255));
 		viewHolder.from.setText(item.latestMessage.sender.name);
 		viewHolder.text.setText(item.latestMessage.body.text);
-		CharSequence ts = DateUtils.getRelativeDateTimeString(view.getContext(), item.latestMessage.sentDate.getTimeInMillis(), 0, DateUtils.WEEK_IN_MILLIS, 0);
+		CharSequence ts = DateUtils.getRelativeTimeSpanString(item.latestMessage.sentDate.getTimeInMillis());
 		viewHolder.timestamp.setText(ts);
 	}
 }

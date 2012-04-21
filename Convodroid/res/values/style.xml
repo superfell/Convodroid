@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <style name="Text">
+    </style>
+    
+    <style name="Text.Timestamp">
+    	<item name="android:textSize">11sp</item>
+    	<item name="android:textColor">#BBB</item>
+    </style>
+    
+    <style name="Text.User">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#00A</item>
+    </style>
+    
+    <style name="Text.Message">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#202221</item>
+    </style>
+</resources>

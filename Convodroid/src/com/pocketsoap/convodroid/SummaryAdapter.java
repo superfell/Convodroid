@@ -30,16 +30,19 @@ import android.view.*;
 import android.widget.*;
 
 import com.pocketsoap.convodroid.data.ConversationSummary;
+import com.pocketsoap.convodroid.photos.ImageLoader;
 
 /** @author @superfell */
 class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 
-	public SummaryAdapter(Context context, List<ConversationSummary> items) {
+	public SummaryAdapter(Context context, ImageLoader imgLoader, List<ConversationSummary> items) {
 		super(context, 0, items);
-		inf = LayoutInflater.from(context);
+		this.inf = LayoutInflater.from(context);
+		this.imageLoader = imgLoader;
 	}
 	
 	private final LayoutInflater inf;
+	private final ImageLoader imageLoader;
 	
 	private static class Holder {
 		Holder(View v) {
@@ -69,5 +72,6 @@ class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 		viewHolder.text.setText(item.latestMessage.body.text);
 		CharSequence ts = DateUtils.getRelativeTimeSpanString(item.latestMessage.sentDate.getTimeInMillis());
 		viewHolder.timestamp.setText(ts);
+		imageLoader.asyncLoadImage(item.latestMessage.sender.photo.smallPhotoUrl, viewHolder.photo);
 	}
 }

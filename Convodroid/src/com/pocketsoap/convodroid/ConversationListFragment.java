@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.pocketsoap.convodroid.data.ConversationSummaryPage;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
+import com.pocketsoap.convodroid.photos.ImageLoader;
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.ClientManager;
 import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
@@ -80,6 +81,7 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 			ForceApp.APP.logout(getActivity());
 			return;
 		}
+		final ImageLoader imageLoader = new ImageLoader(getActivity(), client);
 		this.getLoaderManager().initLoader(0, null, new LoaderCallbacks<ConversationSummaryPage>() {
 
 			@Override
@@ -90,7 +92,7 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 
 			@Override
 			public void onLoadFinished(Loader<ConversationSummaryPage> arg0, ConversationSummaryPage page) {
-				setListAdapter(new SummaryAdapter(getActivity(), page.conversations));
+				setListAdapter(new SummaryAdapter(getActivity(), imageLoader, page.conversations));
 			}
 
 			@Override

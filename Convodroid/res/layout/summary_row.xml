@@ -11,6 +11,9 @@
         android:layout_margin="6dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
+        android:padding="1dp"
+        android:background="@drawable/photo_background"
+        android:src="@drawable/ic_contact_picture_2"
 	/>
     
     <TextView

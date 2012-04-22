@@ -32,17 +32,23 @@ import android.widget.*;
 import com.pocketsoap.convodroid.data.*;
 import com.pocketsoap.convodroid.photos.ImageLoader;
 
-/** @author @superfell */
+/**
+ * ListAdapter to show the conversation summary list.
+ *  
+ * @author @superfell
+ **/
 class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 
-	public SummaryAdapter(Context context, ImageLoader imgLoader, List<ConversationSummary> items) {
+	public SummaryAdapter(Context context, ImageLoader imgLoader, String myUserId, List<ConversationSummary> items) {
 		super(context, 0, items);
 		this.inf = LayoutInflater.from(context);
 		this.imageLoader = imgLoader;
+		this.myUserId = myUserId;
 	}
 	
 	private final LayoutInflater inf;
 	private final ImageLoader imageLoader;
+	private final String myUserId;
 	
 	private static class Holder {
 		Holder(View v) {
@@ -68,7 +74,14 @@ class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 	
 	private void bindRow(View view, Holder viewHolder, ConversationSummary item) {
 		view.setBackgroundColor(item.read ? Color.WHITE : Color.argb(128, 225, 225, 255));
-		viewHolder.from.setText(item.latestMessage.sender.name);
+		if (myUserId.equals(item.latestMessage.sender.id)) {
+			if (item.latestMessage.recipients.size() > 0)
+				viewHolder.from.setText(item.latestMessage.recipients.get(0).name);
+			else
+				viewHolder.from.setText("Who the hell knows!");
+		} else {
+			viewHolder.from.setText(item.latestMessage.sender.name);
+		}
 		viewHolder.text.setText(item.latestMessage.body.text);
 		CharSequence ts = DateUtils.getRelativeTimeSpanString(item.latestMessage.sentDate.getTimeInMillis());
 		viewHolder.timestamp.setText(ts);

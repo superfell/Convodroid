@@ -106,7 +106,7 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 	@Override
 	public void onLoadFinished(Loader<ConversationSummaryPage> arg0, ConversationSummaryPage page) {
 		if (adapter == null) {
-			adapter = new SummaryAdapter(getActivity(), imageLoader, page.conversations);
+			adapter = new SummaryAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, page.conversations);
 			setListAdapter(adapter);
 		} else {
 			adapter.addPage(page);

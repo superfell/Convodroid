@@ -28,6 +28,9 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.view.*;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.pocketsoap.convodroid.data.ConversationDetail;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
 import com.salesforce.androidsdk.rest.*;
@@ -69,9 +72,32 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 		} else {
 			adapter.addMessages(details);
 		}
+		stopRefreshAnimation();
 	}
 
 	@Override
 	public void onLoaderReset(Loader<ConversationDetail> loader) {
 	}
+	
+
+	@Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.detail, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+    		case R.id.action_refresh:
+    			refresh();
+    			return true;
+    	}
+    	return super.onOptionsItemSelected(item);
+    }
+    
+    private void refresh() {
+    	startRefreshAnimation();
+    	getLoaderManager().restartLoader(0, getArguments(), this);
+    }
+    
 }

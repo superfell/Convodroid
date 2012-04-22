@@ -57,15 +57,7 @@ public class DetailAdapter extends ConversationAdapter<Message> {
 
 	@Override
 	protected void bindRow(View view, Holder viewHolder, Message item) {
-		//view.setBackgroundColor(item.read ? Color.WHITE : Color.argb(128, 225, 225, 255));
-		if (myUserId.equals(item.sender.id)) {
-			if (item.recipients.size() > 0)
-				viewHolder.from.setText(item.recipients.get(0).name);
-			else
-				viewHolder.from.setText("Who the hell knows!");
-		} else {
-			viewHolder.from.setText(item.sender.name);
-		}
+		viewHolder.from.setText(item.sender.name);
 		viewHolder.text.setText(item.body.text);
 		CharSequence ts = DateUtils.getRelativeTimeSpanString(item.sentDate.getTimeInMillis());
 		viewHolder.timestamp.setText(ts);

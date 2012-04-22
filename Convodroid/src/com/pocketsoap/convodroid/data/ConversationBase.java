@@ -34,4 +34,11 @@ public class ConversationBase {
 	public List<User> members;
 	public boolean read;
 
+	/** @return the User with this id from the members collection, or null if its not in the members collection */
+	public User memberWithId(String userId) {
+		for (User m : members) {
+			if (userId.equals(m.id)) return m;
+		}
+		return null;
+	}
 }

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <ImageView
+        android:id="@+id/photo"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_margin="6dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:padding="1dp"
+        android:background="@drawable/photo_background"
+        android:src="@drawable/ic_contact_picture_2"
+	/>
+
+    <EditText
+        android:id="@+id/msg_body"
+        android:layout_margin="6dp"
+        android:layout_toLeftOf="@id/photo"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lines="5"
+        style="@style/Text.Message"
+    	android:inputType="text|textAutoComplete|textAutoCorrect|textMultiLine"
+    	android:hint="@string/tap_to_reply"
+    />
+
+    <Button
+        android:id="@+id/send_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/photo"
+        android:layout_alignRight="@id/photo"
+        android:layout_below="@id/photo"
+        android:text="@string/ab_post"
+    />
+    
+</RelativeLayout>

@@ -26,12 +26,15 @@ import org.codehaus.jackson.type.TypeReference;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.*;
+import android.view.View.OnClickListener;
+import android.widget.*;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.pocketsoap.convodroid.data.ConversationDetail;
+import com.pocketsoap.convodroid.data.*;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
 import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
@@ -40,7 +43,7 @@ import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 /**
  * @author @superfell
  */
-public class ConversationDetailFragment extends ConversationFragment implements LoaderCallbacks<ConversationDetail> {
+public class ConversationDetailFragment extends ConversationFragment implements LoaderCallbacks<ConversationDetail>, OnClickListener {
 	
 	static final String EXTRA_DETAIL_URL = "detail_url";
 	
@@ -52,6 +55,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	}
 
 	private DetailAdapter adapter;
+	private EditText replyText;
 	
 	@Override
 	protected void initLoader() {
@@ -64,9 +68,23 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 		return new JsonLoader<ConversationDetail>(getActivity(), restClient, req, new TypeReference<ConversationDetail>() {} );
 	}
 
+	private void addReplyFooter(ConversationDetail details) {
+		View reply = LayoutInflater.from(getActivity()).inflate(R.layout.reply, getListView(), false);
+		Button b = (Button) reply.findViewById(R.id.send_button);
+		b.setOnClickListener(this);
+		replyText = (EditText) reply.findViewById(R.id.msg_body);
+		User me = details.memberWithId(restClient.getClientInfo().userId);
+		if (me != null) {
+			ImageView photo = (ImageView)reply.findViewById(R.id.photo);
+			imageLoader.asyncLoadImage(me.photo.smallPhotoUrl, photo);
+		}
+		getListView().addFooterView(reply, null, true);
+	}
+	
 	@Override
 	public void onLoadFinished(Loader<ConversationDetail> loader, ConversationDetail details) {
 		if (adapter == null) {
+			addReplyFooter(details);
 			adapter = new DetailAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, details.messages.reverseOrderMessages());
 			setListAdapter(adapter);
 		} else {
@@ -99,5 +117,10 @@ public class ConversationDetailFragment extends ConversationFragment implements 
     	startRefreshAnimation();
     	getLoaderManager().restartLoader(0, getArguments(), this);
     }
-    
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		Log.i("Convodroid", "send reply " + replyText.getText());
+	}
 }

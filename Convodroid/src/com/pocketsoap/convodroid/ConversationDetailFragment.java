@@ -63,6 +63,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 
 	private DetailAdapter adapter;
 	private EditText replyText;
+	private Button sendButton;
 	
 	@Override
 	protected void initLoader() {
@@ -77,8 +78,8 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 
 	private void addReplyFooter(ConversationDetail details) {
 		View reply = LayoutInflater.from(getActivity()).inflate(R.layout.reply, getListView(), false);
-		Button b = (Button) reply.findViewById(R.id.send_button);
-		b.setOnClickListener(this);
+		sendButton = (Button) reply.findViewById(R.id.send_button);
+		sendButton.setOnClickListener(this);
 		replyText = (EditText) reply.findViewById(R.id.msg_body);
 		User me = details.memberWithId(restClient.getClientInfo().userId);
 		if (me != null) {
@@ -129,6 +130,8 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	public void onClick(View v) {
 		Log.i("Convodroid", "send reply " + replyText.getText());
 		startRefreshAnimation();
+		sendButton.setEnabled(false);
+		replyText.setEnabled(false);
 		String body = replyText.getText().toString();
 		String inReplyTo = adapter.getItem(adapter.getCount()-1).id;
 		NewMessage m = new NewMessage(body, inReplyTo);
@@ -150,13 +153,20 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 					} catch (IOException e) {
 						Log.e("Convodroid", "boom", e);
 					}
-					stopRefreshAnimation();
+					sendDone();
 				}
 
 				@Override
 				public void onError(Exception exception) {
 					Log.i("Convodroid", "error creating post");
+					sendDone();
+				}
+				
+				private void sendDone() {
 					stopRefreshAnimation();
+					sendButton.setEnabled(true);
+					replyText.setEnabled(true);
+					replyText.setText("");
 				}
 			});
 		} catch (Exception e) {

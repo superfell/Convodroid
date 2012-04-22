@@ -21,8 +21,6 @@
 
 package com.pocketsoap.convodroid;
 
-import java.util.List;
-
 import android.content.Context;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -36,9 +34,12 @@ import com.pocketsoap.convodroid.photos.ImageLoader;
  */
 public class DetailAdapter extends ConversationAdapter<Message> {
 
-	public DetailAdapter(Context context, ImageLoader imgLoader, String myUserId, List<Message> items) {
-		super(context, imgLoader, myUserId, items);
+	public DetailAdapter(Context context, ImageLoader imgLoader, String myUserId, ConversationDetail detail) {
+		super(context, imgLoader, myUserId, detail.messages.reverseOrderMessages());
+		this.detail = detail;
 	}
+	
+	private ConversationDetail detail;
 	
 	@Override
 	public int getViewTypeCount() {
@@ -65,6 +66,11 @@ public class DetailAdapter extends ConversationAdapter<Message> {
 	}
 	
 	void addMessages(ConversationDetail cd) {
-		// TODO
+		boolean isFirstPage = cd.messages.currentPageUrl.equals(detail.messages.currentPageUrl);
+		if (isFirstPage) {
+			// update the first/primary page.
+			detail = cd;
+		}
+		addAll(cd.messages.reverseOrderMessages(), isFirstPage);
 	}
 }

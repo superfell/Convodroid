@@ -93,12 +93,13 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	public void onLoadFinished(Loader<ConversationDetail> loader, ConversationDetail details) {
 		if (adapter == null) {
 			addReplyFooter(details);
-			adapter = new DetailAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, details.messages.reverseOrderMessages());
+			adapter = new DetailAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, details);
 			setListAdapter(adapter);
 		} else {
 			adapter.addMessages(details);
 		}
 		stopRefreshAnimation();
+		getListView().smoothScrollToPosition(getListView().getCount()-1);
 	}
 
 	@Override

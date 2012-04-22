@@ -30,6 +30,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.salesforce.androidsdk.rest.RestClient;
 import com.salesforce.androidsdk.rest.RestRequest;
@@ -55,8 +56,10 @@ public class JsonLoader<ReturnType> extends AsyncLoader<ReturnType> {
 	
 	@Override
 	public ReturnType loadInBackground() {
+		Log.v("Convodroid", "JsonLoader::loadInBackground " + request.getMethod() + " " + request.getPath());
 		try {
 			RestResponse res = client.sendSync(request);
+			Log.v("Convodroid", "JsonLoader:: got http response " + res.getStatusCode() + " for " + request.getPath());
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			return mapper.readValue(res.getHttpResponse().getEntity().getContent(), typeReference );

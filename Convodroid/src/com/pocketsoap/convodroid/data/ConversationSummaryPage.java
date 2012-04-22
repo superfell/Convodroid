@@ -29,4 +29,9 @@ public class ConversationSummaryPage {
 	public String currentPageUrl;
 	public String nextPageUrl;
 	public List<ConversationSummary> conversations;
+	
+	@Override
+	public String toString() {
+		return super.toString() + " #conversations=" + conversations.size() + " currentPage=" + currentPageUrl + " nextPage=" + nextPageUrl;
+	}
 }

@@ -99,10 +99,13 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 		}
 		imageLoader = new ImageLoader(getActivity(), client);
 		restClient = client;
-		this.getLoaderManager().initLoader(0, null, this);
+		// Note you have to start the animation first because sometimes the loader already has the data
+		// and so the onLoadFinished gets called before the call to initLoader returns.
 		startRefreshAnimation();
+		this.getLoaderManager().initLoader(0, null, this);
 	}
 
+	/** start animating the refresh icon in the action bar */
 	private void startRefreshAnimation() {
 		if (refreshView == null) {
 			LayoutInflater inflater = LayoutInflater.from(getActivity());
@@ -112,10 +115,13 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 			refreshAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.refresh);
 			refreshAnimation.setRepeatCount(Animation.INFINITE);
 		}
-		refreshView.startAnimation(refreshAnimation);
-	    refreshItem.setActionView(refreshView);
+		if (refreshItem != null) {
+			refreshView.startAnimation(refreshAnimation);
+			refreshItem.setActionView(refreshView);
+		}
 	}
 	
+	/** stop animating the refresh icon in the action bar */
 	private void stopRefreshAnimation() {
 		if (refreshItem != null) {
 			if (refreshItem.getActionView() != null)
@@ -149,7 +155,6 @@ public class ConversationListFragment extends SherlockListFragment implements Re
         inflater.inflate(R.menu.summary, menu);
         refreshItem = menu.findItem(R.id.action_refresh);
     }
-	
 
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch (item.getItemId()) {
@@ -165,8 +170,8 @@ public class ConversationListFragment extends SherlockListFragment implements Re
     }
     
     private void refresh() {
-    	getLoaderManager().restartLoader(0, null, this);
     	startRefreshAnimation();
+    	getLoaderManager().restartLoader(0, null, this);
     }
     
     private void createPost() {

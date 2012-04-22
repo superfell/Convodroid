@@ -21,7 +21,7 @@
 
 package com.pocketsoap.convodroid;
 
-import java.util.List;
+import java.util.*;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -40,7 +40,10 @@ import com.pocketsoap.convodroid.photos.ImageLoader;
 class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 
 	public SummaryAdapter(Context context, ImageLoader imgLoader, String myUserId, List<ConversationSummary> items) {
-		super(context, 0, items);
+		// Note that we explicitly copy the starting data because when we call
+		// clear later we don't want to clear the actual list that the caller
+		// passed us.
+		super(context, 0, new ArrayList<ConversationSummary>(items));
 		this.inf = LayoutInflater.from(context);
 		this.imageLoader = imgLoader;
 		this.myUserId = myUserId;
@@ -94,7 +97,8 @@ class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 			this.clear();
 		} 
 		// can't use addAll, it's not in API 8
-		for (ConversationSummary cs : page.conversations)
+		for (ConversationSummary cs : page.conversations) {
 			this.add(cs);
+		}
 	}
 }

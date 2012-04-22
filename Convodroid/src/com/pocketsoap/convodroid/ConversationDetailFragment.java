@@ -67,7 +67,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	@Override
 	public void onLoadFinished(Loader<ConversationDetail> loader, ConversationDetail details) {
 		if (adapter == null) {
-			adapter = new DetailAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, details.messages.messages);
+			adapter = new DetailAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, details.messages.reverseOrderMessages());
 			setListAdapter(adapter);
 		} else {
 			adapter.addMessages(details);

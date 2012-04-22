@@ -20,7 +20,7 @@
 //
 package com.pocketsoap.convodroid.data;
 
-import java.util.List;
+import java.util.*;
 
 /** @author @superfell */
 public class MessagePage {
@@ -28,4 +28,11 @@ public class MessagePage {
 	public String currentPageUrl;
 	public String nextPageUrl;
 	public List<Message> messages;
+	
+	// messages are in reverse order to what we want
+	public List<Message> reverseOrderMessages() {
+		List<Message> r = new ArrayList<Message>(messages);
+		Collections.reverse(r);
+		return r;
+	}
 }

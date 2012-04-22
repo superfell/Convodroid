@@ -21,13 +21,12 @@
 
 package com.pocketsoap.convodroid;
 
-import java.util.*;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.text.format.DateUtils;
-import android.view.*;
-import android.widget.*;
+import android.view.View;
 
 import com.pocketsoap.convodroid.data.*;
 import com.pocketsoap.convodroid.photos.ImageLoader;
@@ -37,45 +36,19 @@ import com.pocketsoap.convodroid.photos.ImageLoader;
  *  
  * @author @superfell
  **/
-class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
+class SummaryAdapter extends ConversationAdapter<ConversationSummary> {
 
 	public SummaryAdapter(Context context, ImageLoader imgLoader, String myUserId, List<ConversationSummary> items) {
-		// Note that we explicitly copy the starting data because when we call
-		// clear later we don't want to clear the actual list that the caller
-		// passed us.
-		super(context, 0, new ArrayList<ConversationSummary>(items));
-		this.inf = LayoutInflater.from(context);
-		this.imageLoader = imgLoader;
-		this.myUserId = myUserId;
-	}
-	
-	private final LayoutInflater inf;
-	private final ImageLoader imageLoader;
-	private final String myUserId;
-	
-	private static class Holder {
-		Holder(View v) {
-			this.photo = (ImageView) v.findViewById(R.id.photo);
-			this.timestamp = (TextView) v.findViewById(R.id.timestamp);
-			this.from = (TextView) v.findViewById(R.id.from);
-			this.text = (TextView) v.findViewById(R.id.msg_body);
-		}
-		
-		private ImageView photo;
-		private TextView timestamp, from, text;
+		super(context, imgLoader, myUserId, items);
 	}
 	
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		if (convertView == null) {
-			convertView = inf.inflate(R.layout.summary_row, parent, false);
-			convertView.setTag(new Holder(convertView));
-		}
-		bindRow(convertView, (Holder)convertView.getTag(), getItem(position));
-		return convertView;
+	protected int getLayoutResourceForPosition(int position) {
+		return R.layout.summary_row;
 	}
-	
-	private void bindRow(View view, Holder viewHolder, ConversationSummary item) {
+
+	@Override
+	protected void bindRow(View view, Holder viewHolder, ConversationSummary item) {
 		view.setBackgroundColor(item.read ? Color.WHITE : Color.argb(128, 225, 225, 255));
 		if (myUserId.equals(item.latestMessage.sender.id)) {
 			if (item.latestMessage.recipients.size() > 0)
@@ -92,13 +65,6 @@ class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 	}
 	
 	void addPage(ConversationSummaryPage page) {
-		if (page.currentPageUrl.endsWith("/conversations")) {
-			// this is the first page, reset the content to what's in this page.
-			this.clear();
-		} 
-		// can't use addAll, it's not in API 8
-		for (ConversationSummary cs : page.conversations) {
-			this.add(cs);
-		}
+		addAll(page.conversations, page.currentPageUrl.endsWith("/conversations"));
 	}
 }

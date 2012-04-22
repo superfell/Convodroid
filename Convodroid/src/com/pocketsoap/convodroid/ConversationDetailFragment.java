@@ -21,6 +21,11 @@
 
 package com.pocketsoap.convodroid;
 
+import java.io.IOException;
+
+import org.apache.http.ParseException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.type.TypeReference;
 
 import android.os.Bundle;
@@ -35,7 +40,9 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.pocketsoap.convodroid.data.*;
+import com.pocketsoap.convodroid.http.JsonEntity;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
+import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
 import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 
@@ -120,7 +127,40 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
 		Log.i("Convodroid", "send reply " + replyText.getText());
+		startRefreshAnimation();
+		String body = replyText.getText().toString();
+		String inReplyTo = adapter.getItem(adapter.getCount()-1).id;
+		NewMessage m = new NewMessage(body, inReplyTo);
+		try {
+			RestRequest req = new RestRequest(RestMethod.POST, "/services/data/v24.0/chatter/users/me/messages", new JsonEntity(m));
+			restClient.sendAsync(req, new AsyncRequestCallback() {
+
+				@Override
+				public void onSuccess(RestResponse response) {
+					try {
+						Log.i("Convodroid", "new msg response " + response.getStatusCode());
+						ObjectMapper m = new ObjectMapper();
+						m.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+						Message newMsg = m.readValue(response.getHttpResponse().getEntity().getContent(), new TypeReference<Message>() {} );
+						adapter.add(newMsg);
+						
+					} catch (ParseException e) {
+						Log.e("Convodroid", "boom", e);
+					} catch (IOException e) {
+						Log.e("Convodroid", "boom", e);
+					}
+					stopRefreshAnimation();
+				}
+
+				@Override
+				public void onError(Exception exception) {
+					Log.i("Convodroid", "error creating post");
+					stopRefreshAnimation();
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

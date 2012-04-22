@@ -18,25 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 // THE SOFTWARE.
 //
-
 package com.pocketsoap.convodroid.data;
 
 /**
- * data we get from the API about a particular user.
- * 
- * @author @superfell
+ * @author superfell
  */
-public class User {
+public class Subscription {
 
-	public String firstName;
-	public String lastName;
-	public String name;
-	public String title;
-	public String companyName;
-	public boolean isChatterGuest;
 	public String id;
 	public String url;
-	public String type;
-	public Photo photo;
-	public Subscription mySubscription;
 }

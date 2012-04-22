@@ -18,25 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 // THE SOFTWARE.
 //
-
 package com.pocketsoap.convodroid.data;
 
+import java.util.List;
+
+import org.codehaus.jackson.map.annotate.*;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+
 /**
- * data we get from the API about a particular user.
+ * Represents a new message that was authored by the user and should be sent to the server.
  * 
  * @author @superfell
  */
-public class User {
+@JsonSerialize(include=Inclusion.NON_NULL)
+public class NewMessage {
 
-	public String firstName;
-	public String lastName;
-	public String name;
-	public String title;
-	public String companyName;
-	public boolean isChatterGuest;
-	public String id;
-	public String url;
-	public String type;
-	public Photo photo;
-	public Subscription mySubscription;
+	public NewMessage() {
+	}
+	
+	public NewMessage(String body, String inReplyTo) {
+		this.body = body;
+		this.inReplyTo = inReplyTo;
+	}
+	
+	public String body;
+	
+	public String inReplyTo;
+	
+	public List<String> recipients;
 }

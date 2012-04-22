@@ -27,21 +27,21 @@ import org.codehaus.jackson.type.TypeReference;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
+import android.view.animation.*;
+import android.widget.ImageView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.*;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.pocketsoap.convodroid.data.ConversationSummaryPage;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
 import com.pocketsoap.convodroid.photos.ImageLoader;
 import com.salesforce.androidsdk.app.ForceApp;
-import com.salesforce.androidsdk.rest.ClientManager;
+import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
 import com.salesforce.androidsdk.rest.ClientManager.RestClientCallback;
-import com.salesforce.androidsdk.rest.RestClient;
-import com.salesforce.androidsdk.rest.RestRequest;
 import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 
 
@@ -58,6 +58,7 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		refreshView = null;
 		View v = inflater.inflate(R.layout.convo_list_f, container, false);
 		return v;
 	}
@@ -86,6 +87,10 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 	private RestClient restClient;
 	private SummaryAdapter adapter;
 	
+	private MenuItem refreshItem;
+	private ImageView refreshView;	// view used when we're animating the actionbar refresh icon.
+	private Animation refreshAnimation;
+	
 	@Override
 	public void authenticatedRestClient(final RestClient client) {
 		if (client == null) {
@@ -95,8 +100,30 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 		imageLoader = new ImageLoader(getActivity(), client);
 		restClient = client;
 		this.getLoaderManager().initLoader(0, null, this);
+		startRefreshAnimation();
 	}
 
+	private void startRefreshAnimation() {
+		if (refreshView == null) {
+			LayoutInflater inflater = LayoutInflater.from(getActivity());
+			refreshView = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
+		}
+		if (refreshAnimation == null) {
+			refreshAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.refresh);
+			refreshAnimation.setRepeatCount(Animation.INFINITE);
+		}
+		refreshView.startAnimation(refreshAnimation);
+	    refreshItem.setActionView(refreshView);
+	}
+	
+	private void stopRefreshAnimation() {
+		if (refreshItem != null) {
+			if (refreshItem.getActionView() != null)
+				refreshItem.getActionView().clearAnimation();
+			refreshItem.setActionView(null);
+		}
+	}
+	
 	@Override
 	public Loader<ConversationSummaryPage> onCreateLoader(int arg0, Bundle arg1) {
 		RestRequest req = new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null);
@@ -111,6 +138,7 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 		} else {
 			adapter.addPage(page);
 		}
+		stopRefreshAnimation();
 	}
 
 	@Override
@@ -119,6 +147,7 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 	
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.summary, menu);
+        refreshItem = menu.findItem(R.id.action_refresh);
     }
 	
 
@@ -137,6 +166,7 @@ public class ConversationListFragment extends SherlockListFragment implements Re
     
     private void refresh() {
     	getLoaderManager().restartLoader(0, null, this);
+    	startRefreshAnimation();
     }
     
     private void createPost() {

@@ -59,14 +59,7 @@ class SummaryAdapter extends ConversationAdapter<ConversationSummary> {
 	@Override
 	protected void bindRow(View view, Holder viewHolder, ConversationSummary item) {
 		view.setBackgroundColor(item.read ? Color.WHITE : Color.argb(128, 225, 225, 255));
-		if (myUserId.equals(item.latestMessage.sender.id)) {
-			if (item.latestMessage.recipients.size() > 0)
-				viewHolder.from.setText(item.latestMessage.recipients.get(0).name);
-			else
-				viewHolder.from.setText("Who the hell knows!");
-		} else {
-			viewHolder.from.setText(item.latestMessage.sender.name);
-		}
+		viewHolder.from.setText(item.memberNames(myUserId));
 		viewHolder.text.setText(item.latestMessage.body.text);
 		CharSequence ts = DateUtils.getRelativeTimeSpanString(item.latestMessage.sentDate.getTimeInMillis());
 		viewHolder.timestamp.setText(ts);

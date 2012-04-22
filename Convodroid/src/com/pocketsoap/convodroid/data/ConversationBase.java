@@ -41,4 +41,15 @@ public class ConversationBase {
 		}
 		return null;
 	}
+	
+	/** @returns the names of the members in this conversation, excluding the specified userId (typically the current user) */
+	public String memberNames(String excludingUserId) {
+		StringBuilder b = new StringBuilder(members.size() * 32);
+		for (User m : members) {
+			if (excludingUserId != null && excludingUserId.equals(m.id)) continue;
+			if (b.length() > 0) b.append(", ");
+			b.append(m.name);
+		}
+		return b.toString();
+	}
 }

@@ -37,7 +37,7 @@ public class ConversationDetailActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.convo_detail);
+        setContentView(R.layout.empty_container);
         if (savedInstanceState == null) {
         	ConversationDetailFragment f = new ConversationDetailFragment();
         	f.setArguments(getIntent().getExtras());

@@ -23,16 +23,15 @@ package com.pocketsoap.convodroid;
 
 import org.codehaus.jackson.type.TypeReference;
 
-import com.pocketsoap.convodroid.data.*;
-import com.pocketsoap.convodroid.loaders.JsonLoader;
-import com.salesforce.androidsdk.rest.RestRequest;
-import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
-
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.*;
+
+import com.pocketsoap.convodroid.data.ConversationDetail;
+import com.pocketsoap.convodroid.loaders.JsonLoader;
+import com.salesforce.androidsdk.rest.*;
+import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 
 
 /**
@@ -49,6 +48,8 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 		return v;
 	}
 
+	private DetailAdapter adapter;
+	
 	@Override
 	protected void initLoader() {
 		getLoaderManager().initLoader(0, getArguments(), this);
@@ -62,7 +63,12 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 
 	@Override
 	public void onLoadFinished(Loader<ConversationDetail> loader, ConversationDetail details) {
-		Log.i("Convodroid", "onLoadFinished " + details);
+		if (adapter == null) {
+			adapter = new DetailAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, details.messages.messages);
+			setListAdapter(adapter);
+		} else {
+			adapter.addMessages(details);
+		}
 	}
 
 	@Override

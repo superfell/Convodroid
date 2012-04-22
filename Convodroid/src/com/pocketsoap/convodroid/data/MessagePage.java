@@ -18,16 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
 // THE SOFTWARE.
 //
-
 package com.pocketsoap.convodroid.data;
 
+import java.util.List;
 
-/**
- * 
- * @author @superfell
- *
- */
-public class ConversationSummary extends ConversationBase {
+/** @author @superfell */
+public class MessagePage {
 
-	public Message latestMessage;
+	public String currentPageUrl;
+	public String nextPageUrl;
+	public List<Message> messages;
 }

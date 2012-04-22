@@ -22,12 +22,8 @@
 package com.pocketsoap.convodroid.data;
 
 
-/**
- * 
- * @author @superfell
- *
- */
-public class ConversationSummary extends ConversationBase {
+public class ConversationDetail extends ConversationBase {
 
-	public Message latestMessage;
+	public MessagePage messages;
+	
 }

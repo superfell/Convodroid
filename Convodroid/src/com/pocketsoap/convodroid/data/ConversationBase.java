@@ -21,13 +21,17 @@
 
 package com.pocketsoap.convodroid.data;
 
+import java.util.List;
 
 /**
- * 
  * @author @superfell
  *
  */
-public class ConversationSummary extends ConversationBase {
+public class ConversationBase {
 
-	public Message latestMessage;
+	public String id;
+	public String url;
+	public List<User> members;
+	public boolean read;
+
 }

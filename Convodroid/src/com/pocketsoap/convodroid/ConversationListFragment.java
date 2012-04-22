@@ -28,108 +28,35 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.view.*;
-import android.view.animation.*;
-import android.widget.ImageView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.pocketsoap.convodroid.data.ConversationSummaryPage;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
-import com.pocketsoap.convodroid.photos.ImageLoader;
-import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.*;
-import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
-import com.salesforce.androidsdk.rest.ClientManager.RestClientCallback;
 import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 
 
 /**
  * @author superfell
  */
-public class ConversationListFragment extends SherlockListFragment implements RestClientCallback, LoaderCallbacks<ConversationSummaryPage> {
+public class ConversationListFragment extends ConversationFragment implements LoaderCallbacks<ConversationSummaryPage> {
 
 	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
-		setHasOptionsMenu(true);
-	}
-	
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		refreshView = null;
+		clearRefreshView();
 		View v = inflater.inflate(R.layout.convo_list_f, container, false);
 		return v;
 	}
-	
-	@Override
-	public void onResume() {
-		super.onResume();
-		
-		// Hide everything until we are logged in
-		// findViewById(R.id.root).setVisibility(View.INVISIBLE);
-		
-		// Login options
-		String accountType = ForceApp.APP.getAccountType();
-    	LoginOptions loginOptions = new LoginOptions(
-    			null, // login host is chosen by user through the server picker 
-    			ForceApp.APP.getPasscodeHash(),
-    			getString(R.string.oauth_callback_url),
-    			getString(R.string.oauth_client_id),
-    			new String[] {"api"});
-		
-		// Get a rest client
-		new ClientManager(getActivity(), accountType, loginOptions).getRestClient(getActivity(), this);
-	}
 
-	private ImageLoader imageLoader;
-	private RestClient restClient;
 	private SummaryAdapter adapter;
-	
-	private MenuItem refreshItem;
-	private ImageView refreshView;	// view used when we're animating the actionbar refresh icon.
-	private Animation refreshAnimation;
-	
+
 	@Override
-	public void authenticatedRestClient(final RestClient client) {
-		if (client == null) {
-			ForceApp.APP.logout(getActivity());
-			return;
-		}
-		imageLoader = new ImageLoader(getActivity(), client);
-		restClient = client;
-		// Note you have to start the animation first because sometimes the loader already has the data
-		// and so the onLoadFinished gets called before the call to initLoader returns.
-		startRefreshAnimation();
-		this.getLoaderManager().initLoader(0, null, this);
+	protected void initLoader() {
+		getLoaderManager().initLoader(0, null, this);
 	}
 
-	/** start animating the refresh icon in the action bar */
-	private void startRefreshAnimation() {
-		if (refreshView == null) {
-			LayoutInflater inflater = LayoutInflater.from(getActivity());
-			refreshView = (ImageView) inflater.inflate(R.layout.refresh_action_view, null);
-		}
-		if (refreshAnimation == null) {
-			refreshAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.refresh);
-			refreshAnimation.setRepeatCount(Animation.INFINITE);
-		}
-		if (refreshItem != null) {
-			refreshView.startAnimation(refreshAnimation);
-			refreshItem.setActionView(refreshView);
-		}
-	}
-	
-	/** stop animating the refresh icon in the action bar */
-	private void stopRefreshAnimation() {
-		if (refreshItem != null) {
-			if (refreshItem.getActionView() != null)
-				refreshItem.getActionView().clearAnimation();
-			refreshItem.setActionView(null);
-		}
-	}
-	
 	@Override
 	public Loader<ConversationSummaryPage> onCreateLoader(int arg0, Bundle arg1) {
 		RestRequest req = new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null);
@@ -151,9 +78,10 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 	public void onLoaderReset(Loader<ConversationSummaryPage> arg0) {
 	}
 	
+	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.summary, menu);
-        refreshItem = menu.findItem(R.id.action_refresh);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -176,5 +104,4 @@ public class ConversationListFragment extends SherlockListFragment implements Re
     
     private void createPost() {
     }
-
 }

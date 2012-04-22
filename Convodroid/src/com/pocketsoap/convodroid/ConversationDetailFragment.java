@@ -21,12 +21,51 @@
 
 package com.pocketsoap.convodroid;
 
+import org.codehaus.jackson.type.TypeReference;
+
+import com.pocketsoap.convodroid.data.*;
+import com.pocketsoap.convodroid.loaders.JsonLoader;
+import com.salesforce.androidsdk.rest.RestRequest;
+import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
+
+import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
+import android.util.Log;
+import android.view.*;
+
 
 /**
  * @author @superfell
  */
-public class ConversationDetailFragment extends ConversationFragment {
+public class ConversationDetailFragment extends ConversationFragment implements LoaderCallbacks<ConversationDetail> {
 	
+	static final String EXTRA_DETAIL_URL = "detail_url";
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		clearRefreshView();
+		View v = inflater.inflate(R.layout.convo_list_f, container, false);
+		return v;
+	}
 
+	@Override
+	protected void initLoader() {
+		getLoaderManager().initLoader(0, getArguments(), this);
+	}
 
+	@Override
+	public Loader<ConversationDetail> onCreateLoader(int id, Bundle args) {
+		RestRequest req = new RestRequest(RestMethod.GET, args.getString(EXTRA_DETAIL_URL), null);
+		return new JsonLoader<ConversationDetail>(getActivity(), restClient, req, new TypeReference<ConversationDetail>() {} );
+	}
+
+	@Override
+	public void onLoadFinished(Loader<ConversationDetail> loader, ConversationDetail details) {
+		Log.i("Convodroid", "onLoadFinished " + details);
+	}
+
+	@Override
+	public void onLoaderReset(Loader<ConversationDetail> loader) {
+	}
 }

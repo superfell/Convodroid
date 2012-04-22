@@ -21,6 +21,7 @@
 
 package com.pocketsoap.convodroid;
 
+import android.content.*;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -36,7 +37,16 @@ public class ConversationDetailActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.convo_detail);
+        if (savedInstanceState == null) {
+        	ConversationDetailFragment f = new ConversationDetailFragment();
+        	f.setArguments(getIntent().getExtras());
+        	getSupportFragmentManager().beginTransaction().add(f, "detail").commit();
+        }
     }
 
+    public static Intent getIntent(Context ctx, String detailUrl) {
+    	Intent i = new Intent(ctx, ConversationDetailActivity.class);
+    	i.putExtra(ConversationDetailFragment.EXTRA_DETAIL_URL, detailUrl);
+    	return i;
+    }
 }

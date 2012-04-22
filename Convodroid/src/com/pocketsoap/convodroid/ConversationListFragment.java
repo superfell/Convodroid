@@ -24,15 +24,17 @@ package com.pocketsoap.convodroid;
 
 import org.codehaus.jackson.type.TypeReference;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.view.*;
+import android.widget.ListView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.pocketsoap.convodroid.data.ConversationSummaryPage;
+import com.pocketsoap.convodroid.data.*;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
 import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
@@ -78,6 +80,13 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 	public void onLoaderReset(Loader<ConversationSummaryPage> arg0) {
 	}
 	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		ConversationSummary s = adapter.getItem(position);
+		Intent i = ConversationDetailActivity.getIntent(getActivity(), s.url);
+		startActivity(i);
+	}
+
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.summary, menu);

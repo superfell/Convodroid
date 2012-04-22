@@ -29,7 +29,7 @@ import android.text.format.DateUtils;
 import android.view.*;
 import android.widget.*;
 
-import com.pocketsoap.convodroid.data.ConversationSummary;
+import com.pocketsoap.convodroid.data.*;
 import com.pocketsoap.convodroid.photos.ImageLoader;
 
 /** @author @superfell */
@@ -73,5 +73,15 @@ class SummaryAdapter extends ArrayAdapter<ConversationSummary> {
 		CharSequence ts = DateUtils.getRelativeTimeSpanString(item.latestMessage.sentDate.getTimeInMillis());
 		viewHolder.timestamp.setText(ts);
 		imageLoader.asyncLoadImage(item.latestMessage.sender.photo.smallPhotoUrl, viewHolder.photo);
+	}
+	
+	void addPage(ConversationSummaryPage page) {
+		if (page.currentPageUrl.endsWith("/conversations")) {
+			// this is the first page, reset the content to what's in this page.
+			this.clear();
+		} 
+		// can't use addAll, it's not in API 8
+		for (ConversationSummary cs : page.conversations)
+			this.add(cs);
 	}
 }

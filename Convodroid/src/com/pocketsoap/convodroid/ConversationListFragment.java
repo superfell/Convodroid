@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.*;
 import com.pocketsoap.convodroid.data.ConversationSummaryPage;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
 import com.pocketsoap.convodroid.photos.ImageLoader;
@@ -47,14 +48,20 @@ import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 /**
  * @author superfell
  */
-public class ConversationListFragment extends SherlockListFragment implements RestClientCallback {
+public class ConversationListFragment extends SherlockListFragment implements RestClientCallback, LoaderCallbacks<ConversationSummaryPage> {
 
+	@Override
+	public void onCreate(Bundle state) {
+		super.onCreate(state);
+		setHasOptionsMenu(true);
+	}
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.convo_list_f, container, false);
 		return v;
 	}
-
+	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -75,29 +82,64 @@ public class ConversationListFragment extends SherlockListFragment implements Re
 		new ClientManager(getActivity(), accountType, loginOptions).getRestClient(getActivity(), this);
 	}
 
+	private ImageLoader imageLoader;
+	private RestClient restClient;
+	private SummaryAdapter adapter;
+	
 	@Override
 	public void authenticatedRestClient(final RestClient client) {
 		if (client == null) {
 			ForceApp.APP.logout(getActivity());
 			return;
 		}
-		final ImageLoader imageLoader = new ImageLoader(getActivity(), client);
-		this.getLoaderManager().initLoader(0, null, new LoaderCallbacks<ConversationSummaryPage>() {
-
-			@Override
-			public Loader<ConversationSummaryPage> onCreateLoader(int arg0, Bundle arg1) {
-				RestRequest req = new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null);
-				return new JsonLoader<ConversationSummaryPage>(getActivity(), client, req, new TypeReference<ConversationSummaryPage>() {} );
-			}
-
-			@Override
-			public void onLoadFinished(Loader<ConversationSummaryPage> arg0, ConversationSummaryPage page) {
-				setListAdapter(new SummaryAdapter(getActivity(), imageLoader, page.conversations));
-			}
-
-			@Override
-			public void onLoaderReset(Loader<ConversationSummaryPage> arg0) {
-			}
-		});
+		imageLoader = new ImageLoader(getActivity(), client);
+		restClient = client;
+		this.getLoaderManager().initLoader(0, null, this);
 	}
+
+	@Override
+	public Loader<ConversationSummaryPage> onCreateLoader(int arg0, Bundle arg1) {
+		RestRequest req = new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null);
+		return new JsonLoader<ConversationSummaryPage>(getActivity(), restClient, req, new TypeReference<ConversationSummaryPage>() {} );
+	}
+
+	@Override
+	public void onLoadFinished(Loader<ConversationSummaryPage> arg0, ConversationSummaryPage page) {
+		if (adapter == null) {
+			adapter = new SummaryAdapter(getActivity(), imageLoader, page.conversations);
+			setListAdapter(adapter);
+		} else {
+			adapter.addPage(page);
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<ConversationSummaryPage> arg0) {
+	}
+	
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.summary, menu);
+    }
+	
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+    		case R.id.action_refresh:
+    			refresh();
+    			return true;
+    			
+    		case R.id.action_post:
+    			createPost();
+    			return true;
+    	}
+    	return super.onOptionsItemSelected(item);
+    }
+    
+    private void refresh() {
+    	getLoaderManager().restartLoader(0, null, this);
+    }
+    
+    private void createPost() {
+    }
+
 }

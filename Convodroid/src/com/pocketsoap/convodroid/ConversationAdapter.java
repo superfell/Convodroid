@@ -59,11 +59,15 @@ abstract class ConversationAdapter<T> extends ArrayAdapter<T> {
 	
 	protected abstract int getLayoutResourceForPosition(int position);
 	
+	protected Holder onNewHolder(Holder h) {
+		return h;
+	}
+	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = inf.inflate(getLayoutResourceForPosition(position), parent, false);
-			convertView.setTag(new Holder(convertView));
+			convertView.setTag(onNewHolder(new Holder(convertView)));
 		}
 		bindRow(convertView, (Holder)convertView.getTag(), getItem(position));
 		return convertView;

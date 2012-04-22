@@ -25,6 +25,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils.TruncateAt;
 import android.text.format.DateUtils;
 import android.view.View;
 
@@ -44,9 +45,16 @@ class SummaryAdapter extends ConversationAdapter<ConversationSummary> {
 	
 	@Override
 	protected int getLayoutResourceForPosition(int position) {
-		return R.layout.summary_row;
+		return R.layout.row_image_left;
 	}
 
+	@Override
+	protected Holder onNewHolder(Holder viewHolder) {
+		viewHolder.text.setMaxLines(2);
+		viewHolder.text.setEllipsize(TruncateAt.END);
+		return viewHolder;
+	}
+	
 	@Override
 	protected void bindRow(View view, Holder viewHolder, ConversationSummary item) {
 		view.setBackgroundColor(item.read ? Color.WHITE : Color.argb(128, 225, 225, 255));

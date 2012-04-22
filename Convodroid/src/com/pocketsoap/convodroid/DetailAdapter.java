@@ -42,7 +42,7 @@ public class DetailAdapter extends ConversationAdapter<Message> {
 	
 	@Override
 	protected int getLayoutResourceForPosition(int position) {
-		return R.layout.summary_row;
+		return R.layout.row_image_left;
 	}
 
 	@Override

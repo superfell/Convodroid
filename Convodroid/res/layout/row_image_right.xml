@@ -9,7 +9,7 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="6dp"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:padding="1dp"
         android:background="@drawable/photo_background"
@@ -19,38 +19,39 @@
     <TextView
         android:id="@+id/from"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="6dp"
+        android:layout_marginLeft="6dp"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="6dp"
-        android:layout_toRightOf="@id/photo"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@id/photo"
+        android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="right"
         style="@style/Text.User"
     />
     
     <TextView
         android:id="@+id/msg_body"
-        android:layout_marginRight="6dp"
+        android:layout_marginLeft="6dp"
         android:layout_below="@id/from"
-        android:layout_toRightOf="@id/photo"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@id/photo"
+        android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="right"
         style="@style/Text.Message"
     />
 
     <TextView
         android:id="@+id/timestamp"
         android:layout_below="@id/msg_body"
-        android:layout_toRightOf="@id/photo"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@id/photo"
+        android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="6dp"
-        android:gravity="left"
+        android:gravity="right"
         style="@style/Text.Timestamp"
     />
-    
     
 </RelativeLayout>

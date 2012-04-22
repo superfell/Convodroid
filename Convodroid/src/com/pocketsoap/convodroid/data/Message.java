@@ -38,4 +38,8 @@ public class Message {
 	public String conversationUrl;
 	public MessageBody body;
 	public Calendar sentDate;
+	
+	public boolean isSender(String userId) {
+		return userId != null && userId.equals(sender.id);
+	}
 }

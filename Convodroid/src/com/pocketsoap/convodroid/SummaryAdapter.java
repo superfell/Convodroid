@@ -27,7 +27,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.text.TextUtils.TruncateAt;
 import android.text.format.DateUtils;
-import android.view.View;
+import android.view.*;
 
 import com.pocketsoap.convodroid.data.*;
 import com.pocketsoap.convodroid.photos.ImageLoader;
@@ -52,6 +52,7 @@ class SummaryAdapter extends ConversationAdapter<ConversationSummary> {
 	protected Holder onNewHolder(Holder viewHolder) {
 		viewHolder.text.setMaxLines(2);
 		viewHolder.text.setEllipsize(TruncateAt.END);
+		viewHolder.timestamp.setGravity(Gravity.RIGHT);
 		return viewHolder;
 	}
 	

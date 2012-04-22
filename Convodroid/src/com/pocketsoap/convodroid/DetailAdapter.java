@@ -41,8 +41,18 @@ public class DetailAdapter extends ConversationAdapter<Message> {
 	}
 	
 	@Override
+	public int getViewTypeCount() {
+		return 2;
+	}
+
+	@Override
+	public int getItemViewType(int position) {
+		return getItem(position).isSender(myUserId) ? 0 : 1;
+	}
+
+	@Override
 	protected int getLayoutResourceForPosition(int position) {
-		return R.layout.row_image_left;
+		return getItem(position).isSender(myUserId) ? R.layout.row_image_right : R.layout.row_image_left;
 	}
 
 	@Override

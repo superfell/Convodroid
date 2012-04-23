@@ -49,6 +49,8 @@
         </activity>
 
         <activity android:name=".ConversationDetailActivity" />
+
+        <activity android:name=".AuthorMessageActivity" />
         
     </application>
 </manifest>

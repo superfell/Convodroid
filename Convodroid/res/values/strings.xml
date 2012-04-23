@@ -8,4 +8,7 @@
 	<string name="ab_refresh">Refresh</string>
 	<string name="ab_post">Send</string>
 	<string name="tap_to_reply">Tap to reply</string>
+	<string name="to">To</string>
+	<string name="msg">Message</string>
+	<string name="send_new_msg_title">Send New Message</string>
 </resources>

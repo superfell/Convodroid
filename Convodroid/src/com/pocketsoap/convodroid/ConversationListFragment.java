@@ -112,5 +112,7 @@ public class ConversationListFragment extends ConversationFragment implements Lo
     }
     
     private void createPost() {
+    	Intent i = new Intent(getActivity(), AuthorMessageActivity.class);
+    	startActivity(i);
     }
 }

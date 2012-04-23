@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:stretchColumns="1"
+    >
+    
+    <TableRow>
+        <TextView
+            android:text="@string/to"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content" 
+	        style="@style/Text.Message"
+	        android:paddingRight="6dp"
+	        android:gravity="right"
+        />
+        
+        <MultiAutoCompleteTextView 
+            android:id="@+id/recipient_name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:completionThreshold="3"
+	        style="@style/Text.Message"
+        />
+    </TableRow>
+	
+    <TableRow>
+        <TextView
+            android:text="@string/msg"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:gravity="top|right" 
+            style="@style/Text.Message"
+	        android:paddingRight="6dp"
+        />
+        
+        <EditText 
+            android:id="@+id/msg_body"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:lines="5"
+            android:inputType="textAutoCorrect|textMultiLine"
+            style="@style/Text.Message"
+        />
+    </TableRow>
+    
+    <TableRow>
+        <Button
+            android:id="@+id/send_button"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/ab_post"
+            android:layout_column="1"
+        />
+    </TableRow>
+</TableLayout>

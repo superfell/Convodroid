@@ -28,9 +28,11 @@ import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.*;
 
 import android.content.Context;
+import android.graphics.*;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.*;
+import android.text.style.*;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -176,6 +178,8 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 			public CharSequence convertResultToString(Object resultValue) {
 				SpannableString ss = new SpannableString(((User)resultValue).name);
 				ss.setSpan(new UserSpan((User)resultValue), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				ss.setSpan(new StyleSpan(Typeface.BOLD), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				ss.setSpan(new ForegroundColorSpan(Color.BLUE), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				return ss;
 			}
 
@@ -190,7 +194,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 					ObjectMapper m = new ObjectMapper();
 					m.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 					UserPage up = m.readValue(res.getHttpResponse().getEntity().getContent(), UserPage.class);
-					Log.i("Convodroid", "got " + up.users.size() + " users returned, first is " + up.users.get(0).name);
+					Log.i("Convodroid", "got " + up.users.size() + " users returned for " + constraint);
 					FilterResults results = new FilterResults();
 					results.count = up.users.size();
 					results.values = up;
@@ -204,10 +208,13 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 
 			@Override
 			protected void publishResults(CharSequence constraint, FilterResults results) {
+				clear();
 				if (results != null) {
-					clear();
-					for (User u : ((UserPage)results.values).users)
-						add(u);
+					UserPage up = (UserPage)results.values;
+					if (up.users != null) {
+						for (User u : ((UserPage)results.values).users)
+							add(u);
+					}
 				}
 			}
 		};

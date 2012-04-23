@@ -24,6 +24,7 @@ package com.pocketsoap.convodroid;
 
 import org.codehaus.jackson.type.TypeReference;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -45,6 +46,8 @@ import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
  */
 public class ConversationListFragment extends ConversationFragment implements LoaderCallbacks<ConversationSummaryPage> {
 
+	private static final int REQUEST_CODE_REFRESH = 42;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		clearRefreshView();
@@ -113,6 +116,15 @@ public class ConversationListFragment extends ConversationFragment implements Lo
     
     private void createPost() {
     	Intent i = new Intent(getActivity(), AuthorMessageActivity.class);
-    	startActivity(i);
+    	startActivityForResult(i, REQUEST_CODE_REFRESH);
     }
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQUEST_CODE_REFRESH && resultCode == Activity.RESULT_OK)
+			refresh();
+	}
+    
+    
 }

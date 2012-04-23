@@ -27,6 +27,7 @@ import java.util.*;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.*;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.*;
 import android.net.Uri;
@@ -123,6 +124,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 					} catch (IOException e) {
 						Log.i("Convodroid", "could create message", e);
 					}
+					getActivity().setResult(Activity.RESULT_OK);
 					getActivity().finish();
 				}
 

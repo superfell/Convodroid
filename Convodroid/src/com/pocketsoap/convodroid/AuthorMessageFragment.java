@@ -160,10 +160,11 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
-				convertView = inf.inflate(android.R.layout.simple_list_item_1, parent, false);
+				convertView = inf.inflate(android.R.layout.simple_list_item_2, parent, false);
 			}
 			User u = getItem(position);
-			((TextView)convertView).setText(u.name);
+			((TextView)convertView.findViewById(android.R.id.text1)).setText(u.name);
+			((TextView)convertView.findViewById(android.R.id.text2)).setText(u.title);
 			return convertView;
 		}
 		

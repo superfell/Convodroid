@@ -22,6 +22,7 @@
 package com.pocketsoap.convodroid;
 
 import java.io.IOException;
+import java.util.*;
 
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.*;
@@ -29,6 +30,7 @@ import org.codehaus.jackson.map.*;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.*;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -36,10 +38,12 @@ import android.widget.*;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.pocketsoap.convodroid.data.*;
+import com.pocketsoap.convodroid.http.JsonEntity;
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
 import com.salesforce.androidsdk.rest.ClientManager.RestClientCallback;
+import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
 import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 
 /**
@@ -53,7 +57,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 		View v = inflater.inflate(R.layout.author, container, false);
 		sendButton = (Button)v.findViewById(R.id.send_button);
 		sendButton.setOnClickListener(this);
-		sendButton.setEnabled(false);
+		//sendButton.setEnabled(false);
 		recipientText = (MultiAutoCompleteTextView)v.findViewById(R.id.recipient_name);
 		recipientText.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 		recipientText.setEnabled(false);
@@ -65,6 +69,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 	private Button sendButton;
 	private MultiAutoCompleteTextView recipientText;
 	private EditText messageText;
+	private RestClient client;
 	
 	@Override
 	public void onResume() {
@@ -90,11 +95,53 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 			recipientText.setAdapter(userAdapter);
 			recipientText.setEnabled(true);
 		}
+		this.client = client;
 	}
 
 	@Override
 	public void onClick(View v) {
 		Log.i("Convodroid", "send " + messageText.getText() + " to " + recipientText.getText());
+		Editable r = recipientText.getText();
+		UserSpan [] users = r.getSpans(0, r.length(), UserSpan.class);
+		List<String> recipients = new ArrayList<String>(users.length);
+		for (UserSpan us : users)
+			recipients.add(us.user.id);
+		NewMessage m = new NewMessage();
+		m.recipients = recipients;
+		m.body = messageText.getText().toString();
+		RestRequest req;
+		try {
+			req = new RestRequest(RestMethod.POST, "/services/data/v24.0/chatter/users/me/messages", new JsonEntity(m));
+			client.sendAsync(req, new AsyncRequestCallback() {
+
+				@Override
+				public void onSuccess(RestResponse response) {
+					try {
+						Log.i("Convodroid", "post new response " + response.getStatusCode() + " "  + response.asString());
+					} catch (IOException e) {
+						Log.i("Convodroid", "could create message", e);
+					}
+					getActivity().finish();
+				}
+
+				@Override
+				public void onError(Exception e) {
+					Log.i("Convodroid", "could create message", e);
+				}
+			});
+		} catch (IOException e) {
+			Log.i("Convodroid", "could create message", e);
+		}
+	}
+	
+	private static class UserSpan {
+		
+		UserSpan(User u) {
+			assert u != null;
+			this.user = u;
+		}
+		
+		final User user;
 	}
 	
 	private static class UserAdapter extends ArrayAdapter<User> {
@@ -127,7 +174,9 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 
 			@Override
 			public CharSequence convertResultToString(Object resultValue) {
-				return ((User)resultValue).name;
+				SpannableString ss = new SpannableString(((User)resultValue).name);
+				ss.setSpan(new UserSpan((User)resultValue), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				return ss;
 			}
 
 			@Override

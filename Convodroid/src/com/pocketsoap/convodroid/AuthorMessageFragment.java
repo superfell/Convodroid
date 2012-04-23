@@ -53,18 +53,20 @@ import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
  * @author @superfell
  *
  */
-public class AuthorMessageFragment extends SherlockFragment implements OnClickListener, RestClientCallback {
+public class AuthorMessageFragment extends SherlockFragment implements OnClickListener, RestClientCallback, TextWatcher {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.author, container, false);
 		sendButton = (Button)v.findViewById(R.id.send_button);
 		sendButton.setOnClickListener(this);
-		//sendButton.setEnabled(false);
+		sendButton.setEnabled(false);
 		recipientText = (MultiAutoCompleteTextView)v.findViewById(R.id.recipient_name);
 		recipientText.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 		recipientText.setEnabled(false);
+		recipientText.addTextChangedListener(this);
 		messageText = (EditText)v.findViewById(R.id.msg_body);
+		messageText.addTextChangedListener(this);
 		return v;
 	}
 
@@ -105,6 +107,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 	public void onClick(View v) {
 		Log.i("Convodroid", "send " + messageText.getText() + " to " + recipientText.getText());
 		Editable r = recipientText.getText();
+		sendButton.setEnabled(false);
 		UserSpan [] users = r.getSpans(0, r.length(), UserSpan.class);
 		List<String> recipients = new ArrayList<String>(users.length);
 		for (UserSpan us : users)
@@ -130,11 +133,13 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 
 				@Override
 				public void onError(Exception e) {
-					Log.i("Convodroid", "could create message", e);
+					Log.i("Convodroid", "couldn't create message", e);
+					updateSendButtonEnabled();
 				}
 			});
 		} catch (IOException e) {
-			Log.i("Convodroid", "could create message", e);
+			Log.i("Convodroid", "couldn't create message", e);
+			updateSendButtonEnabled();
 		}
 	}
 	
@@ -221,5 +226,22 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 				}
 			}
 		};
+	}
+
+	private void updateSendButtonEnabled() {
+		sendButton.setEnabled(recipientText.getText().length() > 0 && messageText.getText().length() > 0);
+	}
+	
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+	}
+
+	@Override
+	public void afterTextChanged(Editable s) {
+		updateSendButtonEnabled();
 	}
 }

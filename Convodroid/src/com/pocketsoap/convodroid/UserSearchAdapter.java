@@ -21,6 +21,7 @@
 package com.pocketsoap.convodroid;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
@@ -73,6 +74,8 @@ class UserSearchAdapter extends ArrayAdapter<User> {
 
 	private Filter searchFilter = new Filter() {
 
+		private final ConcurrentHashMap<String, FilterResults> lookupCache = new ConcurrentHashMap<String, FilterResults>();
+
 		@Override
 		public CharSequence convertResultToString(Object resultValue) {
 			SpannableString ss = new SpannableString(((User)resultValue).name);
@@ -82,10 +85,20 @@ class UserSearchAdapter extends ArrayAdapter<User> {
 			return ss;
 		}
 
+		private FilterResults makeResults(UserPage p) {
+			FilterResults r = new FilterResults();
+			r.count = p.users.size();
+			r.values = p;
+			return r;
+		}
+		
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
-			Log.i("Convodroid", "performFiltering " + constraint);
 			if (constraint == null) return null;
+			String filterText = constraint.toString();
+			Log.i("Convodroid", "performFiltering " + filterText);
+			FilterResults cached = lookupCache.get(filterText);
+			if (cached != null) return cached;
 			try {
 				String path = "/services/data/v24.0/chatter/users?q=" + Uri.encode(constraint.toString());
 				Log.i("Convodroid", "GET " + path);
@@ -94,9 +107,8 @@ class UserSearchAdapter extends ArrayAdapter<User> {
 				m.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 				UserPage up = m.readValue(res.getHttpResponse().getEntity().getContent(), UserPage.class);
 				Log.i("Convodroid", "got " + up.users.size() + " users returned for " + constraint);
-				FilterResults results = new FilterResults();
-				results.count = up.users.size();
-				results.values = up;
+				FilterResults results = makeResults(up);
+				lookupCache.put(filterText, results);
 				return results;
 				
 			} catch (IOException e) {

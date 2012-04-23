@@ -24,16 +24,9 @@ package com.pocketsoap.convodroid;
 import java.io.IOException;
 import java.util.*;
 
-import org.codehaus.jackson.map.DeserializationConfig.Feature;
-import org.codehaus.jackson.map.*;
-
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.*;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.*;
-import android.text.style.*;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -70,7 +63,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 		return v;
 	}
 
-	private UserAdapter userAdapter;
+	private UserSearchAdapter userAdapter;
 	private Button sendButton;
 	private MultiAutoCompleteTextView recipientText;
 	private EditText messageText;
@@ -96,7 +89,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 	@Override
 	public void authenticatedRestClient(RestClient client) {
 		if (userAdapter == null) {
-			userAdapter = new UserAdapter(getActivity(), android.R.layout.simple_list_item_1, client);
+			userAdapter = new UserSearchAdapter(getActivity(), android.R.layout.simple_list_item_1, client);
 			recipientText.setAdapter(userAdapter);
 			recipientText.setEnabled(true);
 		}
@@ -143,7 +136,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 		}
 	}
 	
-	private static class UserSpan {
+	static class UserSpan {
 		
 		UserSpan(User u) {
 			assert u != null;
@@ -153,81 +146,6 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 		final User user;
 	}
 	
-	private static class UserAdapter extends ArrayAdapter<User> {
-
-		public UserAdapter(Context context, int textViewResourceId, RestClient client) {
-			super(context, textViewResourceId);
-			this.client = client;
-			this.inf = LayoutInflater.from(context);
-		}
-
-		private final LayoutInflater inf;
-		private final RestClient client;
-		
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			if (convertView == null) {
-				convertView = inf.inflate(android.R.layout.simple_list_item_2, parent, false);
-			}
-			User u = getItem(position);
-			((TextView)convertView.findViewById(android.R.id.text1)).setText(u.name);
-			((TextView)convertView.findViewById(android.R.id.text2)).setText(u.title);
-			return convertView;
-		}
-		
-		@Override
-		public Filter getFilter() {
-			return searchFilter;
-		}
-
-		private Filter searchFilter = new Filter() {
-
-			@Override
-			public CharSequence convertResultToString(Object resultValue) {
-				SpannableString ss = new SpannableString(((User)resultValue).name);
-				ss.setSpan(new UserSpan((User)resultValue), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-				ss.setSpan(new StyleSpan(Typeface.BOLD), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-				ss.setSpan(new ForegroundColorSpan(Color.BLUE), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-				return ss;
-			}
-
-			@Override
-			protected FilterResults performFiltering(CharSequence constraint) {
-				Log.i("Convodroid", "performFiltering " + constraint);
-				if (constraint == null) return null;
-				try {
-					String path = "/services/data/v24.0/chatter/users?q=" + Uri.encode(constraint.toString());
-					Log.i("Convodroid", "GET " + path);
-					RestResponse res = client.sendSync(RestMethod.GET, path, null);
-					ObjectMapper m = new ObjectMapper();
-					m.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-					UserPage up = m.readValue(res.getHttpResponse().getEntity().getContent(), UserPage.class);
-					Log.i("Convodroid", "got " + up.users.size() + " users returned for " + constraint);
-					FilterResults results = new FilterResults();
-					results.count = up.users.size();
-					results.values = up;
-					return results;
-					
-				} catch (IOException e) {
-					Log.i("Convodroid", "user search failed ", e);
-					return new FilterResults();
-				}
-			}
-
-			@Override
-			protected void publishResults(CharSequence constraint, FilterResults results) {
-				clear();
-				if (results != null) {
-					UserPage up = (UserPage)results.values;
-					if (up.users != null) {
-						for (User u : ((UserPage)results.values).users)
-							add(u);
-					}
-				}
-			}
-		};
-	}
-
 	private void updateSendButtonEnabled() {
 		sendButton.setEnabled(recipientText.getText().length() > 0 && messageText.getText().length() > 0);
 	}

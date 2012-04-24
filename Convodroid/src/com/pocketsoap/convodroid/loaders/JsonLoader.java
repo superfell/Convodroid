@@ -25,16 +25,13 @@ import java.io.IOException;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.*;
 import org.codehaus.jackson.type.TypeReference;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.salesforce.androidsdk.rest.RestClient;
-import com.salesforce.androidsdk.rest.RestRequest;
-import com.salesforce.androidsdk.rest.RestResponse;
+import com.salesforce.androidsdk.rest.*;
 
 /**
  * Loader that will make a REST API call and return the parsed json payload.

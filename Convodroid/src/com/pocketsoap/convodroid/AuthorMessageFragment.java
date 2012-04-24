@@ -34,7 +34,7 @@ import android.widget.*;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.pocketsoap.convodroid.data.*;
-import com.pocketsoap.convodroid.http.JsonEntity;
+import com.pocketsoap.convodroid.http.*;
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
@@ -108,32 +108,26 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 		NewMessage m = new NewMessage();
 		m.recipients = recipients;
 		m.body = messageText.getText().toString();
-		RestRequest req;
-		try {
-			req = new RestRequest(RestMethod.POST, "/services/data/v24.0/chatter/users/me/messages", new JsonEntity(m));
-			client.sendAsync(req, new AsyncRequestCallback() {
+		RestRequest req = ChatterRequests.postMessage(m);
+		client.sendAsync(req, new AsyncRequestCallback() {
 
-				@Override
-				public void onSuccess(RestResponse response) {
-					try {
-						Log.i("Convodroid", "post new response " + response.getStatusCode() + " "  + response.asString());
-					} catch (IOException e) {
-						Log.i("Convodroid", "could create message", e);
-					}
-					getActivity().setResult(Activity.RESULT_OK);
-					getActivity().finish();
+			@Override
+			public void onSuccess(RestResponse response) {
+				try {
+					Log.i("Convodroid", "post new response " + response.getStatusCode() + " "  + response.asString());
+				} catch (IOException e) {
+					Log.i("Convodroid", "could create message", e);
 				}
+				getActivity().setResult(Activity.RESULT_OK);
+				getActivity().finish();
+			}
 
-				@Override
-				public void onError(Exception e) {
-					Log.i("Convodroid", "couldn't create message", e);
-					updateSendButtonEnabled();
-				}
-			});
-		} catch (IOException e) {
-			Log.i("Convodroid", "couldn't create message", e);
-			updateSendButtonEnabled();
-		}
+			@Override
+			public void onError(Exception e) {
+				Log.i("Convodroid", "couldn't create message", e);
+				updateSendButtonEnabled();
+			}
+		});
 	}
 	
 	static class UserSpan {

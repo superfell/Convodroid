@@ -25,12 +25,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.pocketsoap.convodroid.http.ChatterRequests;
 import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
 import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 
 import android.content.Context;
 import android.graphics.*;
+import android.util.Log;
 import android.widget.ImageView;
 
 /**
@@ -70,6 +72,7 @@ public class ImageLoader {
 	public void asyncLoadImage(final String imageUrl, final ImageView iv) {
 		Bitmap bm = cache.get(imageUrl);
 		if (bm != null) {
+			Log.v("Convodroid", "Using cached copy of image for " + imageUrl);
 			iv.setImageBitmap(bm);
 			return;
 		}
@@ -78,14 +81,17 @@ public class ImageLoader {
 		waiters.add(iv);
 		List<ImageView> existingWaiters = inflight.putIfAbsent(imageUrl, waiters);
 		if (existingWaiters != null) {
+			Log.v("Convodroid", "request already inflight, adding to waiters list for " + imageUrl);
 			existingWaiters.add(iv);	// there was already a waiters list, add it to that one instead.
 			return;
 		}
-		RestRequest req = new RestRequest(RestMethod.GET, imageUrl, null);
+		RestRequest req = ChatterRequests.image(imageUrl);
+		Log.v("Convodroid", "starting request for GET " + req.getPath());
 		client.sendAsync(req, new AsyncRequestCallback() {
 
 			@Override
 			public void onSuccess(RestResponse response) {
+				Log.v("Convodroid", "got success response for " + imageUrl);
 				try {
 					List<ImageView> waiters = inflight.remove(imageUrl);
 					Bitmap bm = BitmapFactory.decodeStream(response.getHttpResponse().getEntity().getContent());
@@ -108,6 +114,7 @@ public class ImageLoader {
 
 			@Override
 			public void onError(Exception exception) {
+				Log.v("Convodroid", "got error for url " + imageUrl + " : " + exception.getMessage());
 				inflight.remove(imageUrl);
 			}
 		});

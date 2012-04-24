@@ -36,9 +36,9 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.pocketsoap.convodroid.data.*;
+import com.pocketsoap.convodroid.http.ChatterRequests;
 import com.pocketsoap.convodroid.loaders.JsonLoader;
-import com.salesforce.androidsdk.rest.*;
-import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
+import com.salesforce.androidsdk.rest.RestRequest;
 
 
 /**
@@ -64,7 +64,7 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 
 	@Override
 	public Loader<ConversationSummaryPage> onCreateLoader(int arg0, Bundle arg1) {
-		RestRequest req = new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null);
+		RestRequest req = ChatterRequests.conversationSummary();
 		return new JsonLoader<ConversationSummaryPage>(getActivity(), restClient, req, new TypeReference<ConversationSummaryPage>() {} );
 	}
 

@@ -20,34 +20,40 @@
 //
 package com.pocketsoap.convodroid.http;
 
-import java.io.*;
+import java.io.IOException;
+import java.util.*;
 
-import org.apache.http.Header;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHeader;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.*;
+import com.pocketsoap.convodroid.data.NewMessage;
+import com.salesforce.androidsdk.rest.*;
+import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 
-/**
- * @author @superfell
- *
- */
-public class JsonEntity extends StringEntity {
+public class ChatterRequests {
 
-	public JsonEntity(Object toSerialize) throws JsonGenerationException, JsonMappingException, UnsupportedEncodingException, IOException {
-		super(jsonify(toSerialize));
+	public static RestRequest conversationSummary() {
+		return new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null, HTTP_HEADERS); 
 	}
 	
-	private static String jsonify(Object o) throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(o);
+	public static RestRequest conversationDetail(String detailUrl) {
+		return new RestRequest(RestMethod.GET, detailUrl, null, HTTP_HEADERS);
 	}
 	
-	private JsonEntity(String s) throws UnsupportedEncodingException {
-		super(s, "UTF-8");
+	public static RestRequest postMessage(NewMessage msg) {
+		try {
+			return new RestRequest(RestMethod.POST, "/services/data/v24.0/chatter/users/me/messages", new JsonEntity(msg), HTTP_HEADERS);
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
 	}
-
-	@Override
-	public Header getContentType() {
-		return new BasicHeader("Content-Type", "application/json");
+	
+	public static RestRequest image(String imageUrl) {
+		return new RestRequest(RestMethod.GET, imageUrl, null);
+	}
+	
+	private static final Map<String, String> HTTP_HEADERS;
+	
+	static {
+		Map<String, String> h = new HashMap<String, String>();
+		h.put("X-Chatter-Entity-Encoding", "false");
+		HTTP_HEADERS = Collections.unmodifiableMap(h);
 	}
 }

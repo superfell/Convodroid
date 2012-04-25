@@ -21,11 +21,6 @@
 
 package com.pocketsoap.convodroid;
 
-import java.io.IOException;
-
-import org.apache.http.ParseException;
-import org.codehaus.jackson.map.DeserializationConfig.Feature;
-import org.codehaus.jackson.map.*;
 import org.codehaus.jackson.type.TypeReference;
 
 import android.app.Activity;
@@ -54,6 +49,10 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	
 	static final String EXTRA_DETAIL_URL = "detail_url";
 	
+	private static final int LOADER_DETAILS = 0;
+	private static final int LOADER_DETAILS_PAGE = 1;
+	private static final int LOADER_POST_REPLY = 2;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		clearRefreshView();
@@ -64,11 +63,11 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	private DetailAdapter adapter;
 	private EditText replyText;
 	private Button sendButton;
-	private View moreHeader;
+	private More moreHeader;
 	
 	@Override
 	protected void initLoader() {
-		getLoaderManager().initLoader(0, getArguments(), this);
+		getLoaderManager().initLoader(LOADER_DETAILS, getArguments(), this);
 	}
 
 	@Override
@@ -92,23 +91,23 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	}
 
 	private void addMoreHeader(String nextPageUrl) {
-		moreHeader = LayoutInflater.from(getActivity()).inflate(R.layout.more, getListView(), false);
-		getListView().addHeaderView(moreHeader, null, true);
+		moreHeader = new More(LayoutInflater.from(getActivity()).inflate(R.layout.more, getListView(), false));
+		getListView().addHeaderView(moreHeader.getContainerView(), null, true);
 		updateMoreHeader(nextPageUrl);
 	}
 
 	private void updateMoreHeader(String nextPageUrl) {
-		moreHeader.setTag(nextPageUrl);
-		moreHeader.setVisibility(nextPageUrl == null ? View.GONE : View.VISIBLE);
+		moreHeader.setVisible(nextPageUrl != null);
+		moreHeader.setNextPageUrl(nextPageUrl);
 	}
 	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		if (v == moreHeader) {
+		if (v == moreHeader.getContainerView()) {
 			startRefreshAnimation();
 			Bundle args = new Bundle();
-			args.putString(EXTRA_DETAIL_URL, (String)moreHeader.getTag());
-			getLoaderManager().restartLoader(1, args, this);
+			args.putString(EXTRA_DETAIL_URL, moreHeader.getNextPageUrl());
+			getLoaderManager().restartLoader(LOADER_DETAILS_PAGE, args, this);
 		}
 	}
 
@@ -120,6 +119,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 			adapter = new DetailAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, details);
 			setListAdapter(adapter);
 			getListView().smoothScrollToPosition(getListView().getCount()-1);
+			if (!details.read) markRead(details);
 		} else {
 			adapter.addMessages(details);
 			updateMoreHeader(details.messages.nextPageUrl);
@@ -131,6 +131,22 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	public void onLoaderReset(Loader<ConversationDetail> loader) {
 	}
 	
+	private void markRead(final ConversationDetail cd) {
+		RestRequest req = ChatterRequests.markConversationRead(cd.conversationUrl);
+		restClient.sendAsync(req, new AsyncRequestCallback() {
+
+			@Override
+			public void onSuccess(RestResponse response) {
+				Log.v("Convodroid", "Marked conversation as read " + cd.conversationUrl);
+				getActivity().setResult(Activity.RESULT_OK);
+			}
+
+			@Override
+			public void onError(Exception exception) {
+				Log.w("Convodroid", "Error marking conversation as read", exception);
+			}
+		});
+	}
 
 	@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -149,7 +165,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
     
     private void refresh() {
     	startRefreshAnimation();
-    	getLoaderManager().restartLoader(0, getArguments(), this);
+    	getLoaderManager().restartLoader(LOADER_DETAILS, getArguments(), this);
     }
 
 	@Override
@@ -161,39 +177,32 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 		String body = replyText.getText().toString();
 		String inReplyTo = adapter.getItem(adapter.getCount()-1).id;
 		NewMessage m = new NewMessage(body, inReplyTo);
-		RestRequest req = ChatterRequests.postMessage(m);
-		restClient.sendAsync(req, new AsyncRequestCallback() {
+		final RestRequest req = ChatterRequests.postMessage(m);
+		getLoaderManager().restartLoader(LOADER_POST_REPLY, null, new LoaderCallbacks<Message>() {
 
 			@Override
-			public void onSuccess(RestResponse response) {
-				try {
-					Log.i("Convodroid", "new msg response " + response.getStatusCode());
-					ObjectMapper m = new ObjectMapper();
-					m.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-					Message newMsg = m.readValue(response.getHttpResponse().getEntity().getContent(), new TypeReference<Message>() {} );
-					adapter.add(newMsg);
-					
-				} catch (ParseException e) {
-					Log.e("Convodroid", "boom", e);
-				} catch (IOException e) {
-					Log.e("Convodroid", "boom", e);
-				}
+			public Loader<Message> onCreateLoader(int arg0, Bundle arg1) {
+				return new JsonLoader<Message>(getActivity(), restClient, req, new TypeReference<Message>() {} );
+			}
+
+			@Override
+			public void onLoadFinished(Loader<Message> arg0, Message newMsg) {
+				adapter.add(newMsg);
 				sendDone();
 			}
 
 			@Override
-			public void onError(Exception exception) {
-				Log.i("Convodroid", "error creating post");
-				sendDone();
+			public void onLoaderReset(Loader<Message> arg0) {
 			}
 			
-			private void sendDone() {
-				stopRefreshAnimation();
-				sendButton.setEnabled(true);
-				replyText.setEnabled(true);
-				replyText.setText("");
-				getActivity().setResult(Activity.RESULT_OK);
-			}
 		});
+	}
+	
+	private void sendDone() {
+		stopRefreshAnimation();
+		sendButton.setEnabled(true);
+		replyText.setEnabled(true);
+		replyText.setText("");
+		getActivity().setResult(Activity.RESULT_OK);
 	}
 }

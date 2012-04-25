@@ -20,8 +20,12 @@
 //
 package com.pocketsoap.convodroid.http;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.message.BasicNameValuePair;
 
 import com.pocketsoap.convodroid.data.NewMessage;
 import com.salesforce.androidsdk.rest.*;
@@ -43,6 +47,15 @@ public class ChatterRequests {
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+	
+	public static RestRequest markConversationRead(String conversationUrl) {
+		try {
+			UrlEncodedFormEntity form = new UrlEncodedFormEntity(Arrays.asList(new NameValuePair [] { new BasicNameValuePair("read", "true") }), "UTF-8");
+			return new RestRequest(RestMethod.POST, conversationUrl + "/mark-read", form, HTTP_HEADERS);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}	
 	}
 	
 	public static RestRequest image(String imageUrl) {

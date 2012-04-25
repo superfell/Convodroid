@@ -62,13 +62,13 @@ public class JsonLoader<ReturnType> extends AsyncLoader<ReturnType> {
 			return mapper.readValue(res.getHttpResponse().getEntity().getContent(), typeReference );
 			
 		} catch (JsonParseException e) {
-			e.printStackTrace();
+			Log.w("Convodroid", "JsonLoader error", e);
 		} catch (JsonMappingException e) {
-			e.printStackTrace();
+			Log.w("Convodroid", "JsonLoader error", e);
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			Log.w("Convodroid", "JsonLoader error", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.w("Convodroid", "JsonLoader error", e);
 		}
 		return null;
 	}

@@ -81,5 +81,9 @@ abstract class ConversationAdapter<T> extends ArrayAdapter<T> {
 		for (T i : items)	// no addAll in API v8
 			add(i);
 	}
-
+	
+	protected void insertAll(List<T> items) {
+		for (T i : items)
+			this.insert(i, 0);
+	}
 }

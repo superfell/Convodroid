@@ -71,6 +71,9 @@ public class DetailAdapter extends ConversationAdapter<Message> {
 			// update the first/primary page.
 			detail = cd;
 		}
-		addAll(cd.messages.reverseOrderMessages(), isFirstPage);
+		if (isFirstPage)
+			addAll(cd.messages.reverseOrderMessages(), true);
+		else
+			insertAll(cd.messages.messages);
 	}
 }

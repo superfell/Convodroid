@@ -64,6 +64,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 	private DetailAdapter adapter;
 	private EditText replyText;
 	private Button sendButton;
+	private View moreHeader;
 	
 	@Override
 	protected void initLoader() {
@@ -76,6 +77,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 		return new JsonLoader<ConversationDetail>(getActivity(), restClient, req, new TypeReference<ConversationDetail>() {} );
 	}
 
+	/** Adds a footer view that lets the user add a reply to the conversation */
 	private void addReplyFooter(ConversationDetail details) {
 		View reply = LayoutInflater.from(getActivity()).inflate(R.layout.reply, getListView(), false);
 		sendButton = (Button) reply.findViewById(R.id.send_button);
@@ -88,18 +90,41 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 		}
 		getListView().addFooterView(reply, null, true);
 	}
+
+	private void addMoreHeader(String nextPageUrl) {
+		moreHeader = LayoutInflater.from(getActivity()).inflate(R.layout.more, getListView(), false);
+		getListView().addHeaderView(moreHeader, null, true);
+		updateMoreHeader(nextPageUrl);
+	}
+
+	private void updateMoreHeader(String nextPageUrl) {
+		moreHeader.setTag(nextPageUrl);
+		moreHeader.setVisibility(nextPageUrl == null ? View.GONE : View.VISIBLE);
+	}
 	
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		if (v == moreHeader) {
+			startRefreshAnimation();
+			Bundle args = new Bundle();
+			args.putString(EXTRA_DETAIL_URL, (String)moreHeader.getTag());
+			getLoaderManager().restartLoader(1, args, this);
+		}
+	}
+
 	@Override
 	public void onLoadFinished(Loader<ConversationDetail> loader, ConversationDetail details) {
 		if (adapter == null) {
+			addMoreHeader(details.messages.nextPageUrl);
 			addReplyFooter(details);
 			adapter = new DetailAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, details);
 			setListAdapter(adapter);
+			getListView().smoothScrollToPosition(getListView().getCount()-1);
 		} else {
 			adapter.addMessages(details);
+			updateMoreHeader(details.messages.nextPageUrl);
 		}
 		stopRefreshAnimation();
-		getListView().smoothScrollToPosition(getListView().getCount()-1);
 	}
 
 	@Override

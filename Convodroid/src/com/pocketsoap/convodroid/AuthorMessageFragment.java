@@ -25,8 +25,11 @@ import java.io.IOException;
 import java.util.*;
 
 import android.app.Activity;
+import android.graphics.*;
 import android.os.Bundle;
 import android.text.*;
+import android.text.method.LinkMovementMethod;
+import android.text.style.*;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -45,7 +48,7 @@ import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
  * @author @superfell
  *
  */
-public class AuthorMessageFragment extends SherlockFragment implements OnClickListener, RestClientCallback, TextWatcher {
+public class AuthorMessageFragment extends SherlockFragment implements OnClickListener, RestClientCallback {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,18 +56,20 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 		sendButton = (Button)v.findViewById(R.id.send_button);
 		sendButton.setOnClickListener(this);
 		sendButton.setEnabled(false);
-		recipientText = (MultiAutoCompleteTextView)v.findViewById(R.id.recipient_name);
-		recipientText.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+		recipientText = (AutoCompleteTextView)v.findViewById(R.id.recipient_name);
 		recipientText.setEnabled(false);
-		recipientText.addTextChangedListener(this);
+		recipientText.addTextChangedListener(new CompletionTextWatcher());
+		recipients = (TextView)v.findViewById(R.id.recipients);
+		recipients.setMovementMethod(LinkMovementMethod.getInstance());
 		messageText = (EditText)v.findViewById(R.id.msg_body);
-		messageText.addTextChangedListener(this);
+		messageText.addTextChangedListener(new EnablingTextWatcher());
 		return v;
 	}
 
 	private UserSearchAdapter userAdapter;
 	private Button sendButton;
-	private MultiAutoCompleteTextView recipientText;
+	private AutoCompleteTextView recipientText;	// current recipient being entered/selected.
+	private TextView recipients;	// list of actually selected recipients.
 	private EditText messageText;
 	private RestClient client;
 	
@@ -88,7 +93,7 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 	@Override
 	public void authenticatedRestClient(RestClient client) {
 		if (userAdapter == null) {
-			userAdapter = new UserSearchAdapter(getActivity(), android.R.layout.simple_list_item_1, client);
+			userAdapter = new UserSearchAdapter(getActivity(), client);
 			recipientText.setAdapter(userAdapter);
 			recipientText.setEnabled(true);
 		}
@@ -97,8 +102,8 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 
 	@Override
 	public void onClick(View v) {
-		Log.i("Convodroid", "send " + messageText.getText() + " to " + recipientText.getText());
-		Editable r = recipientText.getText();
+		Log.i("Convodroid", "send " + messageText.getText() + " to " + recipients.getText());
+		Spannable r = (Spannable)recipients.getText();
 		sendButton.setEnabled(false);
 		UserSpan [] users = r.getSpans(0, r.length(), UserSpan.class);
 		List<String> recipients = new ArrayList<String>(users.length);
@@ -140,19 +145,68 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 	}
 	
 	private void updateSendButtonEnabled() {
-		sendButton.setEnabled(recipientText.getText().length() > 0 && messageText.getText().length() > 0);
+		sendButton.setEnabled(recipients.getText().length() > 0 && messageText.getText().length() > 0);
 	}
 	
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-	}
+	// updated the enabled state of the end button after a text change.
+	private class EnablingTextWatcher implements TextWatcher {
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+		}
 
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count) {
-	}
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+		}
 
-	@Override
-	public void afterTextChanged(Editable s) {
-		updateSendButtonEnabled();
+		@Override
+		public void afterTextChanged(Editable s) {
+			updateSendButtonEnabled();
+		}
+	}
+	
+	// this watches for the text to have a userId span in it (from the auto completion selection) and move it to the selected recipients list.
+	private class CompletionTextWatcher extends EnablingTextWatcher {
+
+		@Override
+		public void afterTextChanged(Editable s) {
+			UserSpan [] userSpans = s.getSpans(0, s.length(), UserSpan.class);
+			if (userSpans != null && userSpans.length > 0) {
+				if (recipients.length() > 0) recipients.append("   ");
+				SpannableString u = new SpannableString(s.toString() + " ");
+				int len = u.length();
+				u.setSpan(userSpans[0], 0, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				u.setSpan(new StyleSpan(Typeface.BOLD), 0, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				u.setSpan(new ForegroundColorSpan(Color.BLUE), 0, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				u.setSpan(new ImageSpan(getActivity(), R.drawable.remove, ImageSpan.ALIGN_BOTTOM), len-1, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				u.setSpan(new RemoveItemClickableSpan(userSpans[0]), 0, len, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				recipients.append(u);
+				s.clear();
+			}
+			super.afterTextChanged(s);
+		}
+	}
+	
+	private class RemoveItemClickableSpan extends ClickableSpan {
+
+		RemoveItemClickableSpan(UserSpan user) {
+			this.user = user;
+		}
+		
+		private final UserSpan user;
+		
+		@Override
+	    public void updateDrawState(TextPaint ds) {
+			// we don't want to change the text appearance.
+		}
+		
+		@Override
+		public void onClick(View widget) {
+			TextView tv = (TextView)widget;
+			Spanned span = (Spanned)tv.getText();
+			int start = span.getSpanStart(user);
+			if (start == -1) return;
+			int end = span.getSpanEnd(user);
+			tv.getEditableText().delete(start,  end);
+		}
 	}
 }

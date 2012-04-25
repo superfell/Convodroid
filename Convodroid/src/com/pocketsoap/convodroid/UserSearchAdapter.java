@@ -23,14 +23,12 @@ package com.pocketsoap.convodroid;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
+import org.codehaus.jackson.map.*;
 
 import android.content.Context;
-import android.graphics.*;
 import android.net.Uri;
 import android.text.*;
-import android.text.style.*;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -47,8 +45,8 @@ import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
  */
 class UserSearchAdapter extends ArrayAdapter<User> {
 
-	UserSearchAdapter(Context context, int textViewResourceId, RestClient client) {
-		super(context, textViewResourceId);
+	UserSearchAdapter(Context context, RestClient client) {
+		super(context, 0);
 		this.client = client;
 		this.inf = LayoutInflater.from(context);
 	}
@@ -80,8 +78,6 @@ class UserSearchAdapter extends ArrayAdapter<User> {
 		public CharSequence convertResultToString(Object resultValue) {
 			SpannableString ss = new SpannableString(((User)resultValue).name);
 			ss.setSpan(new UserSpan((User)resultValue), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-			ss.setSpan(new StyleSpan(Typeface.BOLD), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-			ss.setSpan(new ForegroundColorSpan(Color.BLUE), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			return ss;
 		}
 

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:stretchColumns="1"
+    android:shrinkColumns="1"
     >
     
     <TableRow>
@@ -15,7 +16,7 @@
 	        android:gravity="right"
         />
         
-        <MultiAutoCompleteTextView 
+        <AutoCompleteTextView 
             android:id="@+id/recipient_name"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -25,6 +26,19 @@
         />
     </TableRow>
 	
+    <TableRow
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+    >
+        <TextView
+            android:id="@+id/recipients" 
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+	        style="@style/Text.Message"
+	        android:layout_column="1"
+        />
+    </TableRow>
+    
     <TableRow>
         <TextView
             android:text="@string/msg"

@@ -29,8 +29,6 @@ import java.util.List;
  */
 public class ConversationBase {
 
-	public String id;
-	public String url;
 	public List<User> members;
 	public boolean read;
 

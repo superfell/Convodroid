@@ -24,6 +24,8 @@ package com.pocketsoap.convodroid.data;
 
 public class ConversationDetail extends ConversationBase {
 
+	public String conversationId;
+	public String conversationUrl;
 	public MessagePage messages;
 	
 }

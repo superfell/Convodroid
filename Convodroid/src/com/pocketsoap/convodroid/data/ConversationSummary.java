@@ -29,5 +29,7 @@ package com.pocketsoap.convodroid.data;
  */
 public class ConversationSummary extends ConversationBase {
 
+	public String id;
+	public String url;
 	public Message latestMessage;
 }

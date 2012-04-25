@@ -34,13 +34,16 @@
 
 		</service>
 		
-		<!-- Login activity -->
-		<activity android:name="com.salesforce.androidsdk.ui.LoginActivity" />
+		<activity android:name=".LoginActivity"
+		    	  android:uiOptions="splitActionBarWhenNarrow"
+		/>
 		
 		<!-- Choose server activity -->
-		<activity android:name="com.salesforce.androidsdk.ui.ServerPickerActivity" android:excludeFromRecents="true" />
+		<activity
+            android:name="com.salesforce.androidsdk.ui.ServerPickerActivity"
+            android:excludeFromRecents="true" />
 		
-        <activity
+		<activity
             android:name=".ConversationListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

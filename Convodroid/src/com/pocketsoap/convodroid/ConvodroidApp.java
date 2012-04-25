@@ -22,6 +22,7 @@
 package com.pocketsoap.convodroid;
 
 import android.app.Activity;
+import android.webkit.*;
 
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.security.Encryptor;
@@ -35,8 +36,20 @@ public class ConvodroidApp extends ForceApp {
 	private static final SalesforceR r = new SalesforceRImpl();
 	
 	@Override
+	public void onCreate() {
+		super.onCreate();
+		// ensure the cookiesync manager is created for when the webview tries to use it.
+		CookieSyncManager.createInstance(this);
+	}
+
+	@Override
 	public int getLockTimeoutMinutes() {
 		return 0;
+	}
+
+	@Override
+	public Class<? extends Activity> getLoginActivityClass() {
+		return LoginActivity.class;
 	}
 
 	@Override
@@ -48,9 +61,9 @@ public class ConvodroidApp extends ForceApp {
 	public SalesforceR getSalesforceR() {
 		return r;
 	}
-
+	
 	@Override
 	protected String getKey(String name) {
-		return Encryptor.hash(name, "@superfell");// TODO, what exacly is this used for?
+		return Encryptor.hash(name, "@superfell");// TODO, what exactly is this used for?
 	}
 }

@@ -24,7 +24,9 @@ package com.pocketsoap.convodroid;
 import android.app.Activity;
 import android.webkit.*;
 
+import com.pocketsoap.convodroid.photos.ImageLoader;
 import com.salesforce.androidsdk.app.ForceApp;
+import com.salesforce.androidsdk.rest.RestClient;
 import com.salesforce.androidsdk.security.Encryptor;
 import com.salesforce.androidsdk.ui.SalesforceR;
 
@@ -66,4 +68,22 @@ public class ConvodroidApp extends ForceApp {
 	protected String getKey(String name) {
 		return Encryptor.hash(name, "@superfell");// TODO, what exactly is this used for?
 	}
+	
+	public synchronized ImageLoader getImageLoader(RestClient c) {
+		if (imageLoader == null) {
+			imageLoader = new ImageLoader(this, c);
+			return imageLoader;
+		}
+		imageLoader.setClient(c);
+		return imageLoader;
+	}
+	
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		if (imageLoader != null)
+			imageLoader.flush();
+	}
+
+	private ImageLoader imageLoader;
 }

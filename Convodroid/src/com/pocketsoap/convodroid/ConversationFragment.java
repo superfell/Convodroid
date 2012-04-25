@@ -72,7 +72,7 @@ public class ConversationFragment extends SherlockListFragment implements RestCl
 			ForceApp.APP.logout(getActivity());
 			return;
 		}
-		imageLoader = new ImageLoader(getActivity(), client);
+		imageLoader = ((ConvodroidApp)getActivity().getApplication()).getImageLoader(client);
 		restClient = client;
 		// Note you have to start the animation first because sometimes the loader already has the data
 		// and so the onLoadFinished gets called before the call to initLoader returns.

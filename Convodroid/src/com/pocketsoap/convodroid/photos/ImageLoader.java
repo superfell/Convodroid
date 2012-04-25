@@ -25,15 +25,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.pocketsoap.convodroid.http.ChatterRequests;
-import com.salesforce.androidsdk.rest.*;
-import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
-import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
-
 import android.content.Context;
 import android.graphics.*;
 import android.util.Log;
 import android.widget.ImageView;
+
+import com.pocketsoap.convodroid.http.ChatterRequests;
+import com.salesforce.androidsdk.rest.*;
+import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
 
 /**
  * This class helps with async loading of images from the API and displaying
@@ -48,9 +47,21 @@ public class ImageLoader {
 		this.client = client;
 	}
 	
+	private RestClient client;
 	private final Context context;
-	private final RestClient client;
 	private final ConcurrentHashMap<String, Bitmap> cache = new ConcurrentHashMap<String, Bitmap>();
+	
+	public synchronized void setClient(RestClient c) {
+		this.client = c;
+	}
+	
+	private synchronized RestClient getClient() {
+		return this.client;
+	}
+	
+	public void flush() {
+		cache.clear();
+	}
 	
 	// if we get a multiple requests for the same url which we haven't yet cached, we only want to fetch it once.
 	// so this keeps track of the inflight requests that we're still waiting on results for, and the list of imageViews
@@ -87,7 +98,7 @@ public class ImageLoader {
 		}
 		RestRequest req = ChatterRequests.image(imageUrl);
 		Log.v("Convodroid", "starting request for GET " + req.getPath());
-		client.sendAsync(req, new AsyncRequestCallback() {
+		getClient().sendAsync(req, new AsyncRequestCallback() {
 
 			@Override
 			public void onSuccess(RestResponse response) {

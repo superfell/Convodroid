@@ -21,18 +21,17 @@
 
 package com.pocketsoap.convodroid.photos;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import android.content.Context;
 import android.graphics.*;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
 import com.pocketsoap.convodroid.http.ChatterRequests;
 import com.salesforce.androidsdk.rest.*;
-import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
 
 /**
  * This class helps with async loading of images from the API and displaying
@@ -98,28 +97,20 @@ public class ImageLoader {
 		}
 		RestRequest req = ChatterRequests.image(imageUrl);
 		Log.v("Convodroid", "starting request for GET " + req.getPath());
-		getClient().sendAsync(req, new AsyncRequestCallback() {
+		ImageFetchTask task = new ImageFetchTask(getClient(), new ImageFetchTaskCallback() {
 
 			@Override
-			public void onSuccess(RestResponse response) {
-				Log.v("Convodroid", "got success response for " + imageUrl);
-				try {
-					List<ImageView> waiters = inflight.remove(imageUrl);
-					Bitmap bm = BitmapFactory.decodeStream(response.getHttpResponse().getEntity().getContent());
-					if (bm != null) {
-						cache.putIfAbsent(imageUrl, bm);
-						if (waiters != null) {
-							for (ImageView iv : waiters) {
-								if (iv.getTag().equals(imageUrl)) {
-									iv.setImageBitmap(bm);
-								}
+			public void onSuccess(Bitmap bm) {
+				List<ImageView> waiters = inflight.remove(imageUrl);
+				if (bm != null) {
+					cache.putIfAbsent(imageUrl, bm);
+					if (waiters != null) {
+						for (ImageView iv : waiters) {
+							if (iv.getTag().equals(imageUrl)) {
+								iv.setImageBitmap(bm);
 							}
 						}
 					}
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
 			}
 
@@ -129,5 +120,44 @@ public class ImageLoader {
 				inflight.remove(imageUrl);
 			}
 		});
+		task.execute(req);
+	}
+	
+	private static abstract class ImageFetchTaskCallback {
+		abstract void onSuccess(Bitmap bm);
+		abstract void onError(Exception ex);
+	}
+	
+	private static class ImageFetchTask extends AsyncTask<RestRequest, Void, Bitmap> {
+
+		ImageFetchTask(RestClient client, ImageFetchTaskCallback callback) {
+			this.client = client;
+			this.callback = callback;
+		}
+		
+		private final RestClient client;
+		private final ImageFetchTaskCallback callback;
+		private Exception exception;
+		
+		@Override
+		protected Bitmap doInBackground(RestRequest... params) {
+			try {
+				RestResponse response = client.sendSync(params[0]);
+				Bitmap bm = BitmapFactory.decodeStream(response.getHttpResponse().getEntity().getContent());
+				return bm;
+			} catch (Exception ex) {
+				exception = ex;
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap result) {
+			if (exception != null) {
+				callback.onError(exception);
+			} else {
+				callback.onSuccess(result);
+			}
+		}
 	}
 }

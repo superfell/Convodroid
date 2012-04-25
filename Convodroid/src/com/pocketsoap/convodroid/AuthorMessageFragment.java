@@ -34,13 +34,12 @@ import android.widget.*;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.pocketsoap.convodroid.data.*;
-import com.pocketsoap.convodroid.http.*;
+import com.pocketsoap.convodroid.http.ChatterRequests;
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
 import com.salesforce.androidsdk.rest.ClientManager.RestClientCallback;
 import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
-import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 
 /**
  * @author @superfell

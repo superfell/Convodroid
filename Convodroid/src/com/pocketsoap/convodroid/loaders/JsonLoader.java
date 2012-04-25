@@ -23,6 +23,7 @@ package com.pocketsoap.convodroid.loaders;
 
 import java.io.IOException;
 
+import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.*;
@@ -57,6 +58,9 @@ public class JsonLoader<ReturnType> extends AsyncLoader<ReturnType> {
 		try {
 			RestResponse res = client.sendSync(request);
 			Log.v("Convodroid", "JsonLoader:: got http response " + res.getStatusCode() + " for " + request.getPath());
+			if (res.getStatusCode() == HttpStatus.SC_NO_CONTENT)
+				return null;
+
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			return mapper.readValue(res.getHttpResponse().getEntity().getContent(), typeReference );

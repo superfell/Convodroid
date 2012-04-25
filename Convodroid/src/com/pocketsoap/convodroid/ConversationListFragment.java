@@ -46,7 +46,7 @@ import com.salesforce.androidsdk.rest.RestRequest;
  */
 public class ConversationListFragment extends ConversationFragment implements LoaderCallbacks<ConversationSummaryPage> {
 
-	private static final int REQUEST_CODE_REFRESH = 42;
+	private static final int REQUEST_CODE_REFRESH_ON_RETURN = 42;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -87,7 +87,7 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		ConversationSummary s = adapter.getItem(position);
 		Intent i = ConversationDetailActivity.getIntent(getActivity(), s.url);
-		startActivity(i);
+		startActivityForResult(i, REQUEST_CODE_REFRESH_ON_RETURN);
 	}
 
 	@Override
@@ -116,13 +116,13 @@ public class ConversationListFragment extends ConversationFragment implements Lo
     
     private void createPost() {
     	Intent i = new Intent(getActivity(), AuthorMessageActivity.class);
-    	startActivityForResult(i, REQUEST_CODE_REFRESH);
+    	startActivityForResult(i, REQUEST_CODE_REFRESH_ON_RETURN);
     }
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == REQUEST_CODE_REFRESH && resultCode == Activity.RESULT_OK)
+		if (requestCode == REQUEST_CODE_REFRESH_ON_RETURN && resultCode == Activity.RESULT_OK)
 			refresh();
 	}
     

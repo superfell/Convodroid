@@ -28,6 +28,7 @@ import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.*;
 import org.codehaus.jackson.type.TypeReference;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -166,6 +167,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 				sendButton.setEnabled(true);
 				replyText.setEnabled(true);
 				replyText.setText("");
+				getActivity().setResult(Activity.RESULT_OK);
 			}
 		});
 	}

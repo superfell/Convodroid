@@ -56,7 +56,8 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 	}
 
 	private SummaryAdapter adapter;
-
+	private More moreFooter;
+	
 	@Override
 	protected void initLoader() {
 		getLoaderManager().initLoader(0, null, this);
@@ -71,6 +72,7 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 	@Override
 	public void onLoadFinished(Loader<ConversationSummaryPage> arg0, ConversationSummaryPage page) {
 		if (adapter == null) {
+			createMoreFooter(page.nextPageUrl);
 			adapter = new SummaryAdapter(getActivity(), imageLoader, restClient.getClientInfo().userId, page.conversations);
 			setListAdapter(adapter);
 		} else {
@@ -81,6 +83,17 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 
 	@Override
 	public void onLoaderReset(Loader<ConversationSummaryPage> arg0) {
+	}
+	
+	private void createMoreFooter(String nextPageUrl) {
+		moreFooter = new More(LayoutInflater.from(getActivity()).inflate(R.layout.more, getListView(), false));
+		updateMoreFooter(nextPageUrl);
+		getListView().addFooterView(moreFooter.getContainerView(), null, true);
+	}
+	
+	private void updateMoreFooter(String nextPageUrl) {
+		moreFooter.setVisible(nextPageUrl != null);
+		moreFooter.setNextPageUrl(nextPageUrl);
 	}
 	
 	@Override

@@ -21,12 +21,15 @@
 
 package com.pocketsoap.convodroid;
 
-import java.io.IOException;
 import java.util.*;
+
+import org.codehaus.jackson.type.TypeReference;
 
 import android.app.Activity;
 import android.graphics.*;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.*;
@@ -38,11 +41,11 @@ import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.pocketsoap.convodroid.data.*;
 import com.pocketsoap.convodroid.http.ChatterRequests;
+import com.pocketsoap.convodroid.loaders.JsonLoader;
 import com.salesforce.androidsdk.app.ForceApp;
 import com.salesforce.androidsdk.rest.*;
 import com.salesforce.androidsdk.rest.ClientManager.LoginOptions;
 import com.salesforce.androidsdk.rest.ClientManager.RestClientCallback;
-import com.salesforce.androidsdk.rest.RestClient.AsyncRequestCallback;
 
 /**
  * @author @superfell
@@ -112,24 +115,22 @@ public class AuthorMessageFragment extends SherlockFragment implements OnClickLi
 		NewMessage m = new NewMessage();
 		m.recipients = recipients;
 		m.body = messageText.getText().toString();
-		RestRequest req = ChatterRequests.postMessage(m);
-		client.sendAsync(req, new AsyncRequestCallback() {
+		final RestRequest req = ChatterRequests.postMessage(m);
+		getLoaderManager().restartLoader(0, null, new LoaderCallbacks<String>() {
 
 			@Override
-			public void onSuccess(RestResponse response) {
-				try {
-					Log.i("Convodroid", "post new response " + response.getStatusCode() + " "  + response.asString());
-				} catch (IOException e) {
-					Log.i("Convodroid", "could create message", e);
-				}
+			public Loader<String> onCreateLoader(int id, Bundle args) {
+				return new JsonLoader<String>(getActivity(), client, req, new TypeReference<String>() {} );
+			}
+
+			@Override
+			public void onLoadFinished(Loader<String> loader, String val) {
 				getActivity().setResult(Activity.RESULT_OK);
 				getActivity().finish();
 			}
 
 			@Override
-			public void onError(Exception e) {
-				Log.i("Convodroid", "couldn't create message", e);
-				updateSendButtonEnabled();
+			public void onLoaderReset(Loader<String> loader) {
 			}
 		});
 	}

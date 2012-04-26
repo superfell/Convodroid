@@ -47,6 +47,9 @@ import com.salesforce.androidsdk.rest.RestRequest;
 public class ConversationListFragment extends ConversationFragment implements LoaderCallbacks<ConversationSummaryPage> {
 
 	private static final int REQUEST_CODE_REFRESH_ON_RETURN = 42;
+	private static final int LOADER_INITIAL_LIST = 0;
+	private static final int LOADER_PAGE = 1;
+	private static final String ARG_URL = "url";
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -60,12 +63,12 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 	
 	@Override
 	protected void initLoader() {
-		getLoaderManager().initLoader(0, null, this);
+		getLoaderManager().initLoader(LOADER_INITIAL_LIST, null, this);
 	}
 
 	@Override
-	public Loader<ConversationSummaryPage> onCreateLoader(int arg0, Bundle arg1) {
-		RestRequest req = ChatterRequests.conversationSummary();
+	public Loader<ConversationSummaryPage> onCreateLoader(int loaderId, Bundle args) {
+		RestRequest req = loaderId == LOADER_INITIAL_LIST ? ChatterRequests.conversationSummary() : ChatterRequests.conversationSummaryPage(args.getString(ARG_URL));
 		return new JsonLoader<ConversationSummaryPage>(getActivity(), restClient, req, new TypeReference<ConversationSummaryPage>() {} );
 	}
 
@@ -77,6 +80,7 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 			setListAdapter(adapter);
 		} else {
 			adapter.addPage(page);
+			updateMoreFooter(page.nextPageUrl);
 		}
 		stopRefreshAnimation();
 	}
@@ -98,9 +102,15 @@ public class ConversationListFragment extends ConversationFragment implements Lo
 	
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		ConversationSummary s = adapter.getItem(position);
-		Intent i = ConversationDetailActivity.getIntent(getActivity(), s.url);
-		startActivityForResult(i, REQUEST_CODE_REFRESH_ON_RETURN);
+		if (v == moreFooter.getContainerView()) {
+			Bundle args = new Bundle();
+			args.putString(ARG_URL, moreFooter.getNextPageUrl());
+			getLoaderManager().restartLoader(LOADER_PAGE, args, this); 
+		} else {
+			ConversationSummary s = adapter.getItem(position);
+			Intent i = ConversationDetailActivity.getIntent(getActivity(), s.url);
+			startActivityForResult(i, REQUEST_CODE_REFRESH_ON_RETURN);
+		}
 	}
 
 	@Override
@@ -124,7 +134,7 @@ public class ConversationListFragment extends ConversationFragment implements Lo
     
     private void refresh() {
     	startRefreshAnimation();
-    	getLoaderManager().restartLoader(0, null, this);
+    	getLoaderManager().restartLoader(LOADER_INITIAL_LIST, null, this);
     }
     
     private void createPost() {

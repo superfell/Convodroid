@@ -34,9 +34,13 @@ import com.salesforce.androidsdk.rest.RestRequest.RestMethod;
 public class ChatterRequests {
 
 	public static RestRequest conversationSummary() {
-		return new RestRequest(RestMethod.GET, "/services/data/v24.0/chatter/users/me/conversations", null, HTTP_HEADERS); 
+		return conversationSummaryPage("/services/data/v24.0/chatter/users/me/conversations");
 	}
-	
+
+	public static RestRequest conversationSummaryPage(String url) {
+		return new RestRequest(RestMethod.GET, url, null, HTTP_HEADERS); 
+	}
+
 	public static RestRequest conversationDetail(String detailUrl) {
 		return new RestRequest(RestMethod.GET, detailUrl, null, HTTP_HEADERS);
 	}

@@ -170,6 +170,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 
 	@Override
 	public void onClick(View v) {
+		if (replyText.getText().toString().trim().length() == 0) return;
 		Log.i("Convodroid", "send reply " + replyText.getText());
 		startRefreshAnimation();
 		sendButton.setEnabled(false);
@@ -187,7 +188,8 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 
 			@Override
 			public void onLoadFinished(Loader<Message> arg0, Message newMsg) {
-				adapter.add(newMsg);
+				if (newMsg != null)
+					adapter.add(newMsg);
 				sendDone();
 			}
 

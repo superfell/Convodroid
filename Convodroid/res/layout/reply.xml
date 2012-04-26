@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:lines="5"
         style="@style/Text.Message"
-    	android:inputType="text|textAutoComplete|textAutoCorrect|textMultiLine"
+    	android:inputType="text|textAutoCorrect|textMultiLine"
     	android:hint="@string/tap_to_reply"
     />
 
@@ -34,7 +34,6 @@
         android:id="@+id/send_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/photo"
         android:layout_alignRight="@id/photo"
         android:layout_below="@id/photo"
         android:text="@string/ab_post"

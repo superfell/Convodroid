@@ -53,7 +53,9 @@
 
         <activity android:name=".ConversationDetailActivity" />
 
-        <activity android:name=".AuthorMessageActivity" />
+        <activity android:name=".AuthorMessageActivity"
+            android:windowSoftInputMode="stateVisible"
+        />
         
     </application>
 </manifest>

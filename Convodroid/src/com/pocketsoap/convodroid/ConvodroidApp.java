@@ -22,7 +22,6 @@
 package com.pocketsoap.convodroid;
 
 import android.app.Activity;
-import android.webkit.*;
 
 import com.pocketsoap.convodroid.photos.ImageLoader;
 import com.salesforce.androidsdk.app.ForceApp;
@@ -37,18 +36,6 @@ public class ConvodroidApp extends ForceApp {
 
 	private static final SalesforceR r = new SalesforceRImpl();
 	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		// ensure the cookiesync manager is created for when the webview tries to use it.
-		CookieSyncManager.createInstance(this);
-	}
-
-	@Override
-	public int getLockTimeoutMinutes() {
-		return 0;
-	}
-
 	@Override
 	public Class<? extends Activity> getLoginActivityClass() {
 		return LoginActivity.class;

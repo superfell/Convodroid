@@ -136,7 +136,7 @@ public class ConversationDetailFragment extends ConversationFragment implements 
 		restClient.sendAsync(req, new AsyncRequestCallback() {
 
 			@Override
-			public void onSuccess(RestResponse response) {
+			public void onSuccess(RestRequest req, RestResponse response) {
 				Log.v("Convodroid", "Marked conversation as read " + cd.conversationUrl);
 				getActivity().setResult(Activity.RESULT_OK);
 			}
